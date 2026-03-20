@@ -1,0 +1,6 @@
+from fastapi import APIRouter
+
+from {{ package_name }}.api.routers.internal import router as internal_router
+
+api_router = APIRouter()
+api_router.include_router(internal_router)
