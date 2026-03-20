@@ -1,0 +1,10 @@
+.PHONY: install run test
+
+install:
+	uv sync --extra dev
+
+run: install
+	uv run python __main__.py --reload
+
+test: install
+	uv run pytest
