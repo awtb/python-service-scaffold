@@ -1,0 +1,12 @@
+from fastapi import FastAPI
+
+from {{ package_name }}.api.routers import api_router
+
+
+def build_app() -> FastAPI:
+    app = FastAPI(
+        title="{{ project_name }}",
+        description="{{ project_description }}",
+    )
+    app.include_router(api_router)
+    return app
