@@ -4,7 +4,7 @@ install:
 	uv sync --extra dev
 
 run: install
-	uv run python __main__.py --reload
+	uv run python -m {{ package_name }} --reload
 
 test: install
 	uv run pytest
