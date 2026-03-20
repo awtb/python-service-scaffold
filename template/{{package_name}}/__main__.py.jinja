@@ -1,0 +1,25 @@
+import typer
+import uvicorn
+
+from {{ package_name }}.settings import get_settings
+
+
+def main(
+    reload: bool = typer.Option(
+        False,
+        "--reload",
+        help="Enable auto-reload for local development.",
+    ),
+) -> None:
+    settings = get_settings()
+    uvicorn.run(
+        "{{ package_name }}.api.app:build_app",
+        host=settings.host,
+        port=settings.port,
+        reload=reload,
+        factory=True,
+    )
+
+
+if __name__ == "__main__":
+    typer.run(main)
