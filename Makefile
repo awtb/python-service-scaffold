@@ -5,6 +5,7 @@ PROJECT_SLUG ?= health-service
 PACKAGE_NAME ?= health_service
 PROJECT_DESCRIPTION ?= Minimal FastAPI service
 PYTHON_VERSION ?= 3.13
+INCLUDE_PRE_COMMIT ?= false
 RENDER_DIR ?= examples/generated/$(PROJECT_SLUG)
 
 render:
@@ -15,6 +16,7 @@ render:
 		-d package_name='$(PACKAGE_NAME)' \
 		-d project_description='$(PROJECT_DESCRIPTION)' \
 		-d python_version='$(PYTHON_VERSION)' \
+		-d include_pre_commit='$(INCLUDE_PRE_COMMIT)' \
 		. $(RENDER_DIR)
 
 test-rendered: render
