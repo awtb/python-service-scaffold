@@ -25,3 +25,8 @@ python_version:
   type: str
   help: Python minor version for the project and Docker image
   default: "3.13"
+
+include_pre_commit:
+  type: bool
+  help: Set up pre-commit hooks?
+  default: false
