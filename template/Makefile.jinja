@@ -4,7 +4,11 @@ install:
 	uv sync --extra dev
 
 run: install
-	uv run python -m {{ package_name }} --reload
+{% if include_http_runtime %}
+	uv run python -m {{ package_name }} http --reload
+{% else %}
+	uv run python -m {{ package_name }}
+{% endif %}
 
 test: install
 	uv run pytest
