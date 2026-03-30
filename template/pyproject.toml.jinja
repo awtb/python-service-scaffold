@@ -9,7 +9,15 @@ description = "{{ project_description }}"
 readme = "README.md"
 requires-python = ">={{ python_version }}"
 dependencies = [
+{% if include_postgresql_plugin %}
+  "asyncpg>=0.31.0",
+  "greenlet>=3.3.2",
+  "psycopg2-binary>=2.9.11",
+{% endif %}
   "pydantic-settings>=2.6,<3.0",
+{% if include_postgresql_plugin %}
+  "sqlalchemy>=2.0.48",
+{% endif %}
   "structlog>=25.0,<26.0",
   "typer>=0.16,<1.0",
 {% if include_http_runtime %}
@@ -20,6 +28,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+{% if include_postgresql_plugin %}
+  "alembic>=1.14,<2.0",
+{% endif %}
 {% if include_pre_commit %}
   "pre-commit>=4.0,<5.0",
 {% endif %}
