@@ -6,6 +6,13 @@ _exclude:
   - "{% if not include_postgresql_plugin %}{{ package_name }}/infra/db{% endif %}"
   - "{% if not include_postgresql_plugin %}alembic.ini{% endif %}"
   - "{% if not include_postgresql_plugin %}alembic{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/features/users{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/models/user.py{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/infra/db/models/users.py{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/dependencies/users.py{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/schemas/users.py{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/users.py{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}tests/test_users_plugin.py{% endif %}"
 
 project_name:
   type: str
@@ -40,6 +47,11 @@ include_http_runtime:
 include_postgresql_plugin:
   type: bool
   help: Include the PostgreSQL db plugin?
+  default: false
+
+include_users_plugin:
+  type: bool
+  help: Include the ready-to-use users feature package? Requires PostgreSQL.
   default: false
 
 include_pre_commit:
