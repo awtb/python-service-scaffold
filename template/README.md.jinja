@@ -26,6 +26,8 @@ The scaffold currently starts from the CLI entrypoint in `{{ package_name }}/__m
 No runtime is enabled by default in this variant. Add a runtime under `{{ package_name }}/runtimes/` and register it in the CLI.
 {% endif %}
 
+Business capabilities should live under `{{ package_name }}/features/`.
+
 {% if include_postgresql_plugin %}
 ## Database
 
@@ -42,6 +44,22 @@ Runtime database access uses SQLAlchemy `AsyncSession` only.
 The dev dependency set also includes Alembic for migrations when the PostgreSQL plugin is enabled.
 
 Migration files live under `alembic/`, and the Alembic environment reads DB settings from `{{ package_name }}.settings`.
+{% endif %}
+
+{% if include_users_plugin and include_postgresql_plugin %}
+## Users
+
+The generated scaffold includes a ready-to-use users feature under `{{ package_name }}/features/users/`.
+
+The business user model lives in `{{ package_name }}/models/user.py`.
+
+{% if include_http_runtime %}
+The HTTP runtime also exposes:
+
+- `GET /users`
+- `GET /users/{user_id}`
+- `POST /users`
+{% endif %}
 {% endif %}
 
 ## Test
