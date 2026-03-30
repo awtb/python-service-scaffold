@@ -40,7 +40,7 @@ include_http_runtime:
 include_postgresql_plugin:
   type: bool
   help: Include the PostgreSQL db plugin?
-  default: true
+  default: false
 
 include_pre_commit:
   type: bool
