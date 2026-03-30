@@ -1,0 +1,43 @@
+from types import TracebackType
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
+
+from {{ package_name }}.protocols import UnitOfWork
+
+
+class SqlAlchemyUnitOfWork(UnitOfWork):
+    def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
+        self._session_factory = session_factory
+        self._session: AsyncSession | None = None
+
+    async def __aenter__(self) -> "SqlAlchemyUnitOfWork":
+        self._session = self._session_factory()
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        if self._session is None:
+            return
+
+        if exc is not None:
+            await self.rollback()
+
+        await self._session.close()
+        self._session = None
+
+    async def commit(self) -> None:
+        if self._session is None:
+            raise RuntimeError("Unit of work session is not initialized.")
+
+        await self._session.commit()
+
+    async def rollback(self) -> None:
+        if self._session is None:
+            raise RuntimeError("Unit of work session is not initialized.")
+
+        await self._session.rollback()
