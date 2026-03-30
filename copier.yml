@@ -3,6 +3,9 @@ _subdirectory: template
 _exclude:
   - "{% if not include_http_runtime %}{{ package_name }}/runtimes/http{% endif %}"
   - "{% if not include_http_runtime %}tests/test_healthcheck.py{% endif %}"
+  - "{% if not include_postgresql_plugin %}{{ package_name }}/infra/db{% endif %}"
+  - "{% if not include_postgresql_plugin %}alembic.ini{% endif %}"
+  - "{% if not include_postgresql_plugin %}alembic{% endif %}"
 
 project_name:
   type: str
@@ -32,6 +35,11 @@ python_version:
 include_http_runtime:
   type: bool
   help: Include the HTTP runtime built with FastAPI?
+  default: true
+
+include_postgresql_plugin:
+  type: bool
+  help: Include the PostgreSQL db plugin?
   default: true
 
 include_pre_commit:
