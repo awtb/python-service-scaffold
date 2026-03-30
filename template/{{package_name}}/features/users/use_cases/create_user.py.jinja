@@ -13,19 +13,25 @@ class CreateUserUseCase:
         self._repository_factory = repository_factory
         self._uow = uow
 
+
+    def _normalize_input(self, command: CreateUserCommand) -> CreateUserCommand:
+        return CreateUserCommand(
+            email=command.email.strip().lower(),
+            full_name=command.full_name.strip(),
+        )
+
     async def execute(self, command: CreateUserCommand) -> User:
         async with self._uow as uow:
             repository = self._repository_factory(uow)
-            normalized_email = command.email.strip().lower()
-            full_name = command.full_name.strip()
+            normalized_command = self._normalize_input(command)
 
-            existing_user = await repository.get_by_email(normalized_email)
+            existing_user = await repository.get_by_email(normalized_command.email)
             if existing_user is not None:
                 raise ValueError("User with this email already exists.")
 
             user = await repository.create(
-                email=normalized_email,
-                full_name=full_name,
+                email=normalized_command.email,
+                full_name=normalized_command.full_name,
             )
 
         return user
