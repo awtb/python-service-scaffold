@@ -2,6 +2,7 @@ services:
   app:
     build:
       context: .
+    command: ["python", "-m", "{{ package_name }}"{% if include_http_runtime %}, "http"{% endif %}]
 {% if include_postgresql_plugin %}
     depends_on:
       - db
