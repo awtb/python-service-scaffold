@@ -1,0 +1,23 @@
+from {{ package_name }}.features.users.contracts import ListUsersCommand
+from {{ package_name }}.features.users.ports import UsersRepositoryFactory
+from {{ package_name }}.models.page_result import PageResult
+from {{ package_name }}.models.user import User
+from {{ package_name }}.protocols import UnitOfWork
+
+
+class ListUsersUseCase:
+    def __init__(
+        self,
+        repository_factory: UsersRepositoryFactory,
+        uow: UnitOfWork,
+    ) -> None:
+        self._repository_factory = repository_factory
+        self._uow = uow
+
+    async def execute(self, command: ListUsersCommand) -> PageResult[User]:
+        async with self._uow as uow:
+            repository = self._repository_factory(uow)
+            return await repository.list(
+                page=command.page,
+                page_size=command.page_size,
+            )
