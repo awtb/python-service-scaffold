@@ -26,6 +26,24 @@ The scaffold currently starts from the CLI entrypoint in `{{ package_name }}/__m
 No runtime is enabled by default in this variant. Add a runtime under `{{ package_name }}/runtimes/` and register it in the CLI.
 {% endif %}
 
+{% if include_postgresql_plugin %}
+## Database
+
+The generated scaffold uses PostgreSQL by default.
+
+Database session management and models live under `{{ package_name }}/infra/db/`.
+
+Configure the connection with `APP_DB_HOST`, `APP_DB_PORT`, `APP_DB_NAME`, `APP_DB_USER`, `APP_DB_PASSWORD`, `APP_DB_DRIVER`, and `APP_DB_DRIVER_SYNC`.
+
+By default, the runtime uses `postgresql+asyncpg` and migrations use `postgresql+psycopg2`.
+
+Runtime database access uses SQLAlchemy `AsyncSession` only.
+
+The dev dependency set also includes Alembic for migrations when the PostgreSQL plugin is enabled.
+
+Migration files live under `alembic/`, and the Alembic environment reads DB settings from `{{ package_name }}.settings`.
+{% endif %}
+
 ## Test
 
 ```bash
