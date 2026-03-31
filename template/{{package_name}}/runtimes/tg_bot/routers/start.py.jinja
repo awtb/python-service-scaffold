@@ -1,0 +1,19 @@
+from aiogram import Router
+from aiogram.filters import CommandStart
+from aiogram.types import Message
+
+from {{ package_name }}.runtimes.tg_bot.keyboards import build_start_keyboard
+from {{ package_name }}.settings import Settings
+
+router = Router(name="tg_bot_start")
+
+
+@router.message(CommandStart())
+async def handle_start(message: Message, settings: Settings) -> None:
+    await message.answer(
+        (
+            f"{settings.service_name} bot runtime is ready. "
+            "Use /ping or the inline button below."
+        ),
+        reply_markup=build_start_keyboard(),
+    )
