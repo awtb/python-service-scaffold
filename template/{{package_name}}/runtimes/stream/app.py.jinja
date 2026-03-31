@@ -1,16 +1,66 @@
+from faststream.asgi import AsgiFastStream
+from faststream.asgi import make_ping_asgi
 from faststream import FastStream
 from faststream.redis import RedisBroker
 
 from {{ package_name }}.infra.logging import configure_logging
+from {{ package_name }}.runtimes.stream.lifecycle import shutdown_runtime
+from {{ package_name }}.runtimes.stream.lifecycle import startup_runtime
+from {{ package_name }}.runtimes.stream.tasks import build_router as build_tasks_router
 from {{ package_name }}.settings import get_settings
-
-settings = get_settings()
-configure_logging(settings)
-
-broker = RedisBroker(settings.redis_url)
-app = FastStream(broker)
+from {{ package_name }}.settings import Settings
 
 
-@broker.subscriber(stream=settings.stream_ping_stream)
-async def handle_ping(message: str) -> str:
-    return f"pong:{settings.service_name}:{message}"
+def build_broker(settings: Settings) -> RedisBroker:
+    broker = RedisBroker(settings.redis_url)
+    broker.include_router(build_tasks_router(settings=settings))
+    return broker
+
+
+def build_app(
+    *,
+    broker: RedisBroker,
+    settings: Settings,
+) -> FastStream:
+    async def startup() -> None:
+        await startup_runtime(
+            broker=broker,
+            settings=settings,
+        )
+
+    async def shutdown() -> None:
+        await shutdown_runtime(broker=broker)
+
+    return FastStream(
+        broker,
+        on_startup=[startup],
+        on_shutdown=[shutdown],
+    )
+
+
+def build_runtime_app() -> FastStream:
+    settings = get_settings()
+    configure_logging(settings)
+    broker = build_broker(settings)
+    return build_app(
+        broker=broker,
+        settings=settings,
+    )
+
+
+def build_asgi_app() -> AsgiFastStream:
+    settings = get_settings()
+    configure_logging(settings)
+    broker = build_broker(settings)
+    app = build_app(
+        broker=broker,
+        settings=settings,
+    )
+    ping_asgi = make_ping_asgi(broker)
+    return AsgiFastStream.from_app(
+        app,
+        asgi_routes=(
+            ("/health", ping_asgi),
+            ("/internal/healthcheck", ping_asgi),
+        ),
+    )
