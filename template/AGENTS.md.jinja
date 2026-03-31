@@ -38,6 +38,8 @@ When adding or changing code, use these rules first:
 - Feature-specific infrastructure that should stay close to the feature: `{{ package_name }}/features/<feature_name>/infra/`
 - Shared settings and config models: `{{ package_name }}/settings.py`
 - Shared logging setup: `{{ package_name }}/infra/logging/`
+- Shared templating adapters and template loader wiring: `{{ package_name }}/infra/templating/`
+- Jinja templates owned by the templating adapter: `{{ package_name }}/infra/templating/templates/`
 - Redis clients and Redis-specific integration helpers: `{{ package_name }}/infra/redis/`
 - Database session management and unit-of-work code: `{{ package_name }}/infra/db/`
 - SQLAlchemy database models: `{{ package_name }}/infra/db/models/`
