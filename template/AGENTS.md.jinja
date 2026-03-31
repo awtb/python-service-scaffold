@@ -30,6 +30,7 @@ When adding or changing code, use these rules first:
 
 - New CLI commands or startup wiring: `{{ package_name }}/runtimes/cli/`
 - New HTTP routers, dependencies, schemas, lifecycle hooks, and middleware: `{{ package_name }}/runtimes/http/`
+- New Telegram bot routers, callbacks, keyboards, FSM states, and dispatcher wiring: `{{ package_name }}/runtimes/tg_bot/`
 - New FastStream brokers, subscribers, publishers, and stream runtime wiring: `{{ package_name }}/runtimes/stream/`
 - Feature business flows: `{{ package_name }}/features/<feature_name>/use_cases/`
 - Feature-specific ports or contracts: `{{ package_name }}/features/<feature_name>/`
