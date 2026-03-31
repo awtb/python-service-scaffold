@@ -4,6 +4,9 @@ _exclude:
   - "{% if not include_http_runtime %}{{ package_name }}/runtimes/http{% endif %}"
   - "{% if not include_http_runtime %}{{ package_name }}/infra/metrics{% endif %}"
   - "{% if not include_http_runtime %}tests/test_healthcheck.py{% endif %}"
+  - "{% if not include_redis_plugin %}{{ package_name }}/infra/redis{% endif %}"
+  - "{% if not include_stream_runtime or not include_redis_plugin %}{{ package_name }}/runtimes/stream{% endif %}"
+  - "{% if not include_stream_runtime or not include_redis_plugin %}tests/test_stream_runtime.py{% endif %}"
   - "{% if not include_postgresql_plugin %}{{ package_name }}/infra/db{% endif %}"
   - "{% if not include_postgresql_plugin %}alembic.ini{% endif %}"
   - "{% if not include_postgresql_plugin %}alembic{% endif %}"
@@ -44,6 +47,16 @@ include_http_runtime:
   type: bool
   help: Include the HTTP runtime built with FastAPI?
   default: true
+
+include_stream_runtime:
+  type: bool
+  help: Include the stream runtime built with FastStream? Requires Redis integration.
+  default: false
+
+include_redis_plugin:
+  type: bool
+  help: Include the Redis integration block?
+  default: false
 
 include_postgresql_plugin:
   type: bool
