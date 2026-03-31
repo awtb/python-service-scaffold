@@ -6,6 +6,7 @@ PACKAGE_NAME ?= health_service
 PROJECT_DESCRIPTION ?= Minimal Python service scaffold
 PYTHON_VERSION ?= 3.13
 INCLUDE_HTTP_RUNTIME ?= true
+INCLUDE_TG_BOT_RUNTIME ?= false
 INCLUDE_STREAM_RUNTIME ?= false
 INCLUDE_REDIS_PLUGIN ?= false
 INCLUDE_POSTGRESQL_PLUGIN ?= true
@@ -22,6 +23,7 @@ render:
 		-d project_description='$(PROJECT_DESCRIPTION)' \
 			-d python_version='$(PYTHON_VERSION)' \
 			-d include_http_runtime='$(INCLUDE_HTTP_RUNTIME)' \
+			-d include_tg_bot_runtime='$(INCLUDE_TG_BOT_RUNTIME)' \
 			-d include_stream_runtime='$(INCLUDE_STREAM_RUNTIME)' \
 			-d include_redis_plugin='$(INCLUDE_REDIS_PLUGIN)' \
 			-d include_postgresql_plugin='$(INCLUDE_POSTGRESQL_PLUGIN)' \
@@ -44,6 +46,7 @@ check-template: render
 		PACKAGE_NAME='cli_service' \
 		PROJECT_DESCRIPTION='Minimal Python service scaffold' \
 		INCLUDE_HTTP_RUNTIME=false \
+		INCLUDE_TG_BOT_RUNTIME=false \
 		INCLUDE_STREAM_RUNTIME=false \
 		INCLUDE_REDIS_PLUGIN=false \
 		INCLUDE_POSTGRESQL_PLUGIN=true \
@@ -54,6 +57,7 @@ check-template: render
 			PACKAGE_NAME='stateless_service' \
 			PROJECT_DESCRIPTION='Minimal Python service scaffold' \
 			INCLUDE_HTTP_RUNTIME=true \
+			INCLUDE_TG_BOT_RUNTIME=false \
 			INCLUDE_STREAM_RUNTIME=false \
 			INCLUDE_REDIS_PLUGIN=false \
 			INCLUDE_POSTGRESQL_PLUGIN=false \
@@ -65,6 +69,7 @@ check-template: render
 			PACKAGE_NAME='users_service' \
 			PROJECT_DESCRIPTION='Minimal Python service scaffold' \
 			INCLUDE_HTTP_RUNTIME=true \
+			INCLUDE_TG_BOT_RUNTIME=false \
 			INCLUDE_STREAM_RUNTIME=false \
 			INCLUDE_REDIS_PLUGIN=false \
 			INCLUDE_POSTGRESQL_PLUGIN=true \
@@ -76,11 +81,24 @@ check-template: render
 			PACKAGE_NAME='stream_service' \
 			PROJECT_DESCRIPTION='Minimal Python service scaffold' \
 			INCLUDE_HTTP_RUNTIME=false \
+			INCLUDE_TG_BOT_RUNTIME=false \
 			INCLUDE_STREAM_RUNTIME=true \
 			INCLUDE_REDIS_PLUGIN=true \
 			INCLUDE_POSTGRESQL_PLUGIN=false \
 			INCLUDE_USERS_PLUGIN=false \
 			RENDER_DIR='examples/generated/stream-service'
+		$(MAKE) test-rendered \
+			PROJECT_NAME='Bot Service' \
+			PROJECT_SLUG='bot-service' \
+			PACKAGE_NAME='bot_service' \
+			PROJECT_DESCRIPTION='Minimal Python service scaffold' \
+			INCLUDE_HTTP_RUNTIME=true \
+			INCLUDE_TG_BOT_RUNTIME=true \
+			INCLUDE_STREAM_RUNTIME=false \
+			INCLUDE_REDIS_PLUGIN=false \
+			INCLUDE_POSTGRESQL_PLUGIN=false \
+			INCLUDE_USERS_PLUGIN=false \
+			RENDER_DIR='examples/generated/bot-service'
 
 clean-generated:
 	rm -rf examples/generated/*
