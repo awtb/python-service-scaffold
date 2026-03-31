@@ -2,130 +2,226 @@
 
 {{ project_description }}
 
-## Run
+## What This Project Includes
+
+This project was generated from small, explicit building blocks.
+
+Enabled in this variant:
+
+- CLI entrypoint in `{{ package_name }}/__main__.py`
+{% if include_http_runtime %}
+- HTTP runtime in `{{ package_name }}/runtimes/http/`
+{% endif %}
+{% if include_tg_bot_runtime and include_http_runtime %}
+- Telegram bot component in `{{ package_name }}/runtimes/tg_bot/`
+{% endif %}
+{% if include_stream_runtime and include_redis_plugin %}
+- Stream runtime in `{{ package_name }}/runtimes/stream/`
+{% endif %}
+{% if include_postgresql_plugin %}
+- PostgreSQL integration in `{{ package_name }}/infra/db/`
+{% endif %}
+{% if include_redis_plugin %}
+- Redis integration in `{{ package_name }}/infra/redis/`
+{% endif %}
+{% if include_templating_component %}
+- Templating component in `{{ package_name }}/infra/templating/`
+{% endif %}
+{% if include_users_plugin and include_postgresql_plugin %}
+- Users feature in `{{ package_name }}/features/users/`
+{% endif %}
+
+## Blocks vs Code Layout
+
+This README uses two different views of the project:
+
+1. Enabled blocks: what was selected when this project was generated
+2. Code layout: where the generated code lives inside the package
+
+They are related, but they are not the same thing.
+
+Examples:
+
+- the HTTP runtime is a block, and its code lives under `{{ package_name }}/runtimes/http/`
+- the PostgreSQL integration is a block, and its code lives mostly under `{{ package_name }}/infra/db/`
+- the templating component is a block, and its code lives under `{{ package_name }}/infra/templating/` and `{{ package_name }}/protocols/templating/`
+- the users feature is a block, and its code lives under `{{ package_name }}/features/users/`
+
+## Quick Start
+
+Install dependencies:
+
+```bash
+make install
+```
+
+Run the project:
 
 ```bash
 make run
 ```
 
+Run tests:
+
+```bash
+make test
+```
+
 {% if include_http_runtime or include_redis_plugin %}
-## Run With Docker
+Run with Docker:
 
 ```bash
 docker compose up --build
 ```
 {% endif %}
 
+## Where To Start
+
+Read and edit these areas first:
+
+- `{{ package_name }}/runtimes/` for transport-specific wiring and entrypoints
+- `{{ package_name }}/features/` for business use cases and feature logic
+- `{{ package_name }}/infra/` for technical adapters such as logging, database, Redis, or templating
+- `{{ package_name }}/protocols/` for contracts between business logic and infrastructure
+- `{{ package_name }}/models/` for shared business models
+
+As a rule:
+
+- put runtime code in `runtimes/`
+- put business logic in `features/`
+- put adapters and infrastructure wiring in `infra/`
+- keep runtime-specific code out of business features when a protocol is enough
+
+## Project Map
+
+The generated project is intentionally small:
+
+- `{{ package_name }}/runtimes/` contains runnable entrypoints and transport wiring
+- `{{ package_name }}/features/` contains business capabilities
+- `{{ package_name }}/infra/` contains infrastructure adapters
+- `{{ package_name }}/protocols/` contains interfaces used across layers
+- `{{ package_name }}/models/` contains shared business models
+- `tests/` contains checks for the blocks included in this project
+
+These packages are the fixed structure of the project.
+The enabled blocks are placed into this structure.
+
+## Enabled Blocks
+
 {% if include_http_runtime %}
+### HTTP Runtime
+
 The HTTP runtime lives in `{{ package_name }}/runtimes/http/`.
 
-The service exposes `GET /internal/healthcheck`.
-The service also exposes Prometheus metrics at `GET /internal/metrics`.
+It exposes:
+
+- `GET /internal/healthcheck`
+- `GET /internal/metrics`
 {% if include_tg_bot_runtime and include_http_runtime %}
-The service also exposes `POST /telegram` for Telegram webhook updates.
+- `POST /telegram`
 {% endif %}
 
-Set `APP_WORKERS_COUNT` to control uvicorn worker processes in the HTTP runtime.
+Run it through the CLI:
+
+```bash
+uv run python -m {{ package_name }} http --reload
+```
+
+Use `APP_WORKERS_COUNT` to control uvicorn worker count in non-reload mode.
+{% endif %}
+
+{% if include_tg_bot_runtime and include_http_runtime %}
+### Telegram Bot Component
+
+The Telegram bot dispatcher and handlers live in `{{ package_name }}/runtimes/tg_bot/`.
+
+Webhook updates are accepted by the HTTP runtime at `POST /telegram`.
+
+Configure:
+
+- `APP_TELEGRAM_BOT_TOKEN`
+- `APP_TELEGRAM_WEBHOOK_URL`
+
+The starter bot includes `/start`, `/ping`, and a small inline callback flow.
 {% endif %}
 
 {% if include_stream_runtime and include_redis_plugin %}
-## Stream Runtime
+### Stream Runtime
 
-The FastStream runtime lives in `{{ package_name }}/runtimes/stream/`.
+The stream runtime lives in `{{ package_name }}/runtimes/stream/`.
 
-The current stream scaffold uses the Redis integration as its broker transport.
-It is assembled explicitly from `app.py`, `lifecycle.py`, and task routers under `runtimes/stream/tasks/`.
-The runtime also provides `build_asgi_app()` with health endpoints at `GET /health` and `GET /internal/healthcheck`.
+It uses Redis as its broker transport and currently includes a simple ping subscriber.
 
-Run it with:
+Run it directly:
 
 ```bash
 uv run python -m {{ package_name }} stream
 ```
 
-Or expose the ASGI wrapper with uvicorn:
+Or expose its ASGI wrapper:
 
 ```bash
 uv run uvicorn {{ package_name }}.runtimes.stream.app:build_asgi_app --factory
 ```
 
-Configure Redis with `APP_REDIS_URL`.
+Configure:
 
-The generated runtime subscribes to the Redis stream named by `APP_STREAM_PING_STREAM`.
+- `APP_REDIS_URL`
+- `APP_STREAM_PING_STREAM`
 {% endif %}
 
-{% if include_tg_bot_runtime and include_http_runtime %}
-## Telegram Bot Runtime
-
-The Telegram bot dispatcher and handlers live in `{{ package_name }}/runtimes/tg_bot/`.
-
-Updates are accepted by the HTTP runtime at `POST /telegram`.
-
-It is assembled explicitly from `dispatcher.py` and transport-focused packages for routers, callbacks, keyboards, middlewares, and states.
-
-Configure the bot token with `APP_TELEGRAM_BOT_TOKEN`.
-Configure the webhook with `APP_TELEGRAM_WEBHOOK_URL`.
-
-The generated starter component includes `/start` and `/ping` handlers plus an inline callback button for a minimal end-to-end flow.
-{% endif %}
-
-{% if not include_http_runtime and not (include_stream_runtime and include_redis_plugin) %}
-The scaffold currently starts from the CLI entrypoint in `{{ package_name }}/__main__.py`.
-
-No runtime is enabled by default in this variant. Add a runtime under `{{ package_name }}/runtimes/` and register it in the CLI.
-{% endif %}
-
-Business capabilities should live under `{{ package_name }}/features/`.
-{% if include_http_runtime %}
-Shared metrics collectors and helpers live under `{{ package_name }}/infra/metrics/`.
-{% endif %}
 {% if include_templating_component %}
+### Templating Component
 
-## Templating Component
+The templating adapter lives in `{{ package_name }}/infra/templating/`.
 
-The generated scaffold includes a Jinja-based template renderer under `{{ package_name }}/infra/templating/`.
+Its protocol lives in `{{ package_name }}/protocols/templating/`.
 
-Template rendering contracts live under `{{ package_name }}/protocols/templating/`.
-The adapter-owned templates live under `{{ package_name }}/infra/templating/templates/`.
+The sample template is:
 
-The generated sample includes `greeting.jinja`, and the renderer can load it directly from the package.
+- `{{ package_name }}/infra/templating/templates/greeting.jinja`
+
+The generated renderer uses Jinja and exposes an async `render(...)` interface.
 {% endif %}
+
 {% if include_redis_plugin %}
+### Redis Integration
 
-## Redis
+Redis helpers live in `{{ package_name }}/infra/redis/`.
 
-The generated scaffold includes Redis integration helpers under `{{ package_name }}/infra/redis/`.
+Redis-facing protocols live in `{{ package_name }}/protocols/redis/`.
 
-Redis-facing protocol definitions live under `{{ package_name }}/protocols/redis/`.
-The shared Redis protocol covers common key-value, TTL, counter, and publish operations.
+Configure:
 
-Configure Redis with `APP_REDIS_URL`.
+- `APP_REDIS_URL`
 {% endif %}
 
 {% if include_postgresql_plugin %}
-## Database
+### PostgreSQL Integration
 
-The generated scaffold uses PostgreSQL by default.
+Database code lives in `{{ package_name }}/infra/db/`.
 
-Database session management and models live under `{{ package_name }}/infra/db/`.
+Alembic migrations live in `alembic/`.
 
-Configure the connection with `APP_DB_HOST`, `APP_DB_PORT`, `APP_DB_NAME`, `APP_DB_USER`, `APP_DB_PASSWORD`, `APP_DB_DRIVER`, and `APP_DB_DRIVER_SYNC`.
+Configure:
 
-By default, the runtime uses `postgresql+asyncpg` and migrations use `postgresql+psycopg2`.
+- `APP_DB_HOST`
+- `APP_DB_PORT`
+- `APP_DB_NAME`
+- `APP_DB_USER`
+- `APP_DB_PASSWORD`
+- `APP_DB_DRIVER`
+- `APP_DB_DRIVER_SYNC`
 
-Runtime database access uses SQLAlchemy `AsyncSession` only.
-
-The dev dependency set also includes Alembic for migrations when the PostgreSQL plugin is enabled.
-
-Migration files live under `alembic/`, and the Alembic environment reads DB settings from `{{ package_name }}.settings`.
+Runtime access uses SQLAlchemy `AsyncSession`.
 {% endif %}
 
 {% if include_users_plugin and include_postgresql_plugin %}
-## Users
+### Users Feature
 
-The generated scaffold includes a ready-to-use users feature under `{{ package_name }}/features/users/`.
+The ready-to-use users feature lives in `{{ package_name }}/features/users/`.
 
-The business user model lives in `{{ package_name }}/models/user.py`.
+The shared user model lives in `{{ package_name }}/models/user.py`.
 
 {% if include_http_runtime %}
 The HTTP runtime also exposes:
@@ -136,17 +232,36 @@ The HTTP runtime also exposes:
 {% endif %}
 {% endif %}
 
-## Test
+{% if not include_http_runtime and not (include_stream_runtime and include_redis_plugin) %}
+## No Runtime Enabled
 
-```bash
-make test
-```
+This variant does not include an HTTP or stream runtime.
+
+The default entrypoint is the CLI app in `{{ package_name }}/runtimes/cli/`.
+Add a runtime under `{{ package_name }}/runtimes/` and register it in the CLI when you need one.
+{% endif %}
+
+## Next Steps
+
+Common first changes:
+
+1. Add or replace feature code under `{{ package_name }}/features/`.
+2. Remove blocks you do not need, or replace scaffolded examples with real logic.
+3. Add runtime routes, commands, or subscribers that call feature-level code.
+4. Extend infrastructure adapters only when your business code actually needs them.
+
 {% if include_pre_commit %}
-
 ## Pre-commit
+
+Install hooks:
 
 ```bash
 make hooks
+```
+
+Run all hooks:
+
+```bash
 make pre-commit
 ```
 {% endif %}
