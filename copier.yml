@@ -4,6 +4,9 @@ _exclude:
   - "{% if not include_http_runtime %}{{ package_name }}/runtimes/http{% endif %}"
   - "{% if not include_http_runtime %}{{ package_name }}/infra/metrics{% endif %}"
   - "{% if not include_http_runtime %}tests/test_healthcheck.py{% endif %}"
+  - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/tg_bot{% endif %}"
+  - "{% if not include_tg_bot_runtime or not include_http_runtime %}tests/test_tg_bot_runtime.py{% endif %}"
+  - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/telegram.py{% endif %}"
   - "{% if not include_redis_plugin %}{{ package_name }}/infra/redis{% endif %}"
   - "{% if not include_stream_runtime or not include_redis_plugin %}{{ package_name }}/runtimes/stream{% endif %}"
   - "{% if not include_stream_runtime or not include_redis_plugin %}tests/test_stream_runtime.py{% endif %}"
@@ -47,6 +50,11 @@ include_http_runtime:
   type: bool
   help: Include the HTTP runtime built with FastAPI?
   default: true
+
+include_tg_bot_runtime:
+  type: bool
+  help: Include the Telegram bot component built with aiogram? Requires HTTP runtime.
+  default: false
 
 include_stream_runtime:
   type: bool
