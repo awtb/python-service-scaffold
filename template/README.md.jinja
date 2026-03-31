@@ -31,11 +31,19 @@ Set `APP_WORKERS_COUNT` to control uvicorn worker processes in the HTTP runtime.
 The FastStream runtime lives in `{{ package_name }}/runtimes/stream/`.
 
 The current stream scaffold uses the Redis integration as its broker transport.
+It is assembled explicitly from `app.py`, `lifecycle.py`, and task routers under `runtimes/stream/tasks/`.
+The runtime also provides `build_asgi_app()` with health endpoints at `GET /health` and `GET /internal/healthcheck`.
 
 Run it with:
 
 ```bash
 uv run python -m {{ package_name }} stream
+```
+
+Or expose the ASGI wrapper with uvicorn:
+
+```bash
+uv run uvicorn {{ package_name }}.runtimes.stream.app:build_asgi_app --factory
 ```
 
 Configure Redis with `APP_REDIS_URL`.
