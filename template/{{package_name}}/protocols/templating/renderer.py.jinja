@@ -1,0 +1,11 @@
+from collections.abc import Mapping
+from typing import Any
+from typing import Protocol
+
+
+class TemplateRenderer(Protocol):
+    async def render(
+        self,
+        template_name: str,
+        context: Mapping[str, Any] | None = None,
+    ) -> str: ...
