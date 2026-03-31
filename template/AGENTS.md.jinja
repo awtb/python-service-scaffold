@@ -30,12 +30,14 @@ When adding or changing code, use these rules first:
 
 - New CLI commands or startup wiring: `{{ package_name }}/runtimes/cli/`
 - New HTTP routers, dependencies, schemas, lifecycle hooks, and middleware: `{{ package_name }}/runtimes/http/`
+- New FastStream brokers, subscribers, publishers, and stream runtime wiring: `{{ package_name }}/runtimes/stream/`
 - Feature business flows: `{{ package_name }}/features/<feature_name>/use_cases/`
 - Feature-specific ports or contracts: `{{ package_name }}/features/<feature_name>/`
 - If a feature accumulates too many contracts, split `contracts.py` into `{{ package_name }}/features/<feature_name>/contracts/` instead of keeping one large module.
 - Feature-specific infrastructure that should stay close to the feature: `{{ package_name }}/features/<feature_name>/infra/`
 - Shared settings and config models: `{{ package_name }}/settings.py`
 - Shared logging setup: `{{ package_name }}/infra/logging/`
+- Redis clients and Redis-specific integration helpers: `{{ package_name }}/infra/redis/`
 - Database session management and unit-of-work code: `{{ package_name }}/infra/db/`
 - SQLAlchemy database models: `{{ package_name }}/infra/db/models/`
 - Database migrations: `alembic/`
@@ -44,7 +46,7 @@ When adding or changing code, use these rules first:
 
 - Do not put business logic into runtime modules when it can live in a feature use case.
 - Do not put HTTP-specific or CLI-specific code into `features/`.
-- Do not make `features/` depend directly on FastAPI, Click, SQLAlchemy sessions, or other runtime details when a port or protocol is enough.
+- Do not make `features/` depend directly on FastAPI, FastStream, Click, SQLAlchemy sessions, or other runtime details when a port or protocol is enough.
 - Do not add hidden framework layers or generic base abstractions unless the codebase already needs them in multiple places.
 - Do not create a new top-level package for a concern that fits under `runtimes`, `features`, `infra`, `models`, or `protocols`.
 
