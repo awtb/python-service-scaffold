@@ -1,0 +1,21 @@
+from collections.abc import Awaitable
+from collections.abc import Callable
+from typing import Any
+
+from aiogram import BaseMiddleware
+
+from {{ package_name }}.settings import Settings
+
+
+class RuntimeContextMiddleware(BaseMiddleware):
+    def __init__(self, *, settings: Settings) -> None:
+        self._settings = settings
+
+    async def __call__(
+        self,
+        handler: Callable[[Any, dict[str, Any]], Awaitable[Any]],
+        event: Any,
+        data: dict[str, Any],
+    ) -> Any:
+        data.setdefault("settings", self._settings)
+        return await handler(event, data)
