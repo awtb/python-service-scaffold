@@ -1,8 +1,10 @@
+{% set has_stream_runtime = include_stream_runtime and include_redis_plugin %}
+{% set primary_runtime = "http" if include_http_runtime else "stream" if has_stream_runtime else none %}
 services:
   app:
     build:
       context: .
-    command: ["python", "-m", "{{ package_name }}"{% if include_http_runtime %}, "http"{% elif include_stream_runtime and include_redis_plugin %}, "stream"{% endif %}]
+    command: ["python", "-m", "{{ package_name }}"{% if primary_runtime %}, "{{ primary_runtime }}"{% endif %}]
 {% if include_postgresql_plugin or include_redis_plugin %}
     depends_on:
 {% if include_postgresql_plugin %}
@@ -27,16 +29,19 @@ services:
     ports:
       - "8000:8000"
 {% endif %}
-{% if include_stream_runtime and include_redis_plugin and include_http_runtime %}
+{% if has_stream_runtime and primary_runtime != "stream" %}
   stream:
     build:
       context: .
     command: ["python", "-m", "{{ package_name }}", "stream"]
+{% if include_postgresql_plugin or include_redis_plugin %}
     depends_on:
 {% if include_postgresql_plugin %}
       - db
 {% endif %}
+{% if include_redis_plugin %}
       - redis
+{% endif %}
     environment:
 {% if include_postgresql_plugin %}
       APP_DB_HOST: db
@@ -45,7 +50,10 @@ services:
       APP_DB_USER: app
       APP_DB_PASSWORD: app
 {% endif %}
+{% if include_redis_plugin %}
       APP_REDIS_URL: redis://redis:6379/0
+{% endif %}
+{% endif %}
 {% endif %}
 {% if include_postgresql_plugin %}
   db:
