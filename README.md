@@ -26,6 +26,7 @@ The current template exposes these blocks:
 
 - CLI runtime, included by default
 - HTTP runtime with FastAPI, optional in the template and enabled in Copier defaults
+- Telegram bot component with aiogram webhook handling, optional and requires HTTP runtime
 - stream runtime with FastStream, optional and requires Redis integration
 - Redis integration, optional
 - PostgreSQL integration, optional
@@ -50,6 +51,7 @@ Optional parts are added only when selected:
 - `infra/db/` and `alembic/` are included when the PostgreSQL block is enabled.
 - `features/users/` is included when the users block is enabled.
 - `runtimes/http/` is included when the HTTP runtime is enabled.
+- `runtimes/tg_bot/` is included when the Telegram bot component is enabled with the HTTP runtime.
 - `runtimes/stream/` is included when the stream runtime and Redis block are enabled together.
 - `tests/` contains checks for the blocks that were rendered into the project.
 
