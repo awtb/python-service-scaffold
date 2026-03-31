@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     cors_allow_headers: list[str] = ["*"]
     cors_allow_credentials: bool = False
 {% endif %}
+{% if include_redis_plugin %}
+    redis_url: str = "redis://localhost:6379/0"
+{% endif %}
+{% if include_stream_runtime and include_redis_plugin %}
+    stream_ping_stream: str = "{{ project_slug }}.ping"
+{% endif %}
 
 {% if include_postgresql_plugin %}
     @property
@@ -59,5 +65,11 @@ def get_settings() -> Settings:
 
 {% if include_postgresql_plugin %}
 def get_database_settings() -> Settings:
+    return get_settings()
+{% endif %}
+{% if include_redis_plugin %}
+
+
+def get_redis_settings() -> Settings:
     return get_settings()
 {% endif %}
