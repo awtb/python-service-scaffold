@@ -21,6 +21,9 @@ The HTTP runtime lives in `{{ package_name }}/runtimes/http/`.
 
 The service exposes `GET /internal/healthcheck`.
 The service also exposes Prometheus metrics at `GET /internal/metrics`.
+{% if include_tg_bot_runtime and include_http_runtime %}
+The service also exposes `POST /telegram` for Telegram webhook updates.
+{% endif %}
 
 Set `APP_WORKERS_COUNT` to control uvicorn worker processes in the HTTP runtime.
 {% endif %}
@@ -49,6 +52,21 @@ uv run uvicorn {{ package_name }}.runtimes.stream.app:build_asgi_app --factory
 Configure Redis with `APP_REDIS_URL`.
 
 The generated runtime subscribes to the Redis stream named by `APP_STREAM_PING_STREAM`.
+{% endif %}
+
+{% if include_tg_bot_runtime and include_http_runtime %}
+## Telegram Bot Runtime
+
+The Telegram bot dispatcher and handlers live in `{{ package_name }}/runtimes/tg_bot/`.
+
+Updates are accepted by the HTTP runtime at `POST /telegram`.
+
+It is assembled explicitly from `dispatcher.py` and transport-focused packages for routers, callbacks, keyboards, middlewares, and states.
+
+Configure the bot token with `APP_TELEGRAM_BOT_TOKEN`.
+Configure the webhook with `APP_TELEGRAM_WEBHOOK_URL`.
+
+The generated starter component includes `/start` and `/ping` handlers plus an inline callback button for a minimal end-to-end flow.
 {% endif %}
 
 {% if not include_http_runtime and not (include_stream_runtime and include_redis_plugin) %}
