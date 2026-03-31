@@ -18,6 +18,7 @@ docker compose up --build
 The HTTP runtime lives in `{{ package_name }}/runtimes/http/`.
 
 The service exposes `GET /internal/healthcheck`.
+The service also exposes Prometheus metrics at `GET /internal/metrics`.
 
 Set `APP_WORKERS_COUNT` to control uvicorn worker processes in the HTTP runtime.
 {% else %}
@@ -27,6 +28,9 @@ No runtime is enabled by default in this variant. Add a runtime under `{{ packag
 {% endif %}
 
 Business capabilities should live under `{{ package_name }}/features/`.
+{% if include_http_runtime %}
+Shared metrics collectors and helpers live under `{{ package_name }}/infra/metrics/`.
+{% endif %}
 
 {% if include_postgresql_plugin %}
 ## Database
