@@ -1,0 +1,16 @@
+from faststream import FastStream
+from faststream.redis import RedisBroker
+
+from {{ package_name }}.infra.logging import configure_logging
+from {{ package_name }}.settings import get_settings
+
+settings = get_settings()
+configure_logging(settings)
+
+broker = RedisBroker(settings.redis_url)
+app = FastStream(broker)
+
+
+@broker.subscriber(stream=settings.stream_ping_stream)
+async def handle_ping(message: str) -> str:
+    return f"pong:{settings.service_name}:{message}"
