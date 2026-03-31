@@ -1,30 +1,41 @@
+import asyncio
 from typing import Any
 
 from aiogram import Bot
 from aiogram import Dispatcher
 from fastapi import APIRouter
-from fastapi import Request
+from fastapi import Depends
 from fastapi import Response
 from fastapi import status
+
+from {{ package_name }}.runtimes.http.dependencies.tg_bot import get_tg_bot
+from {{ package_name }}.runtimes.http.dependencies.tg_bot import get_tg_bot_dispatcher
 
 router = APIRouter(tags=["telegram"])
 
 
-@router.post("/telegram", status_code=status.HTTP_200_OK)
+def schedule_update(
+    *,
+    bot: Bot,
+    dispatcher: Dispatcher,
+    payload: dict[str, Any],
+) -> None:
+    asyncio.create_task(dispatcher.feed_raw_update(bot, payload))
+
+
+@router.post("/telegram", status_code=status.HTTP_202_ACCEPTED)
 async def telegram_webhook(
     payload: dict[str, Any],
-    request: Request,
+    bot: Bot = Depends(get_tg_bot),
+    dispatcher: Dispatcher = Depends(get_tg_bot_dispatcher),
 ) -> Response:
-    settings = request.app.state.settings
-    dispatcher: Dispatcher = request.app.state.telegram_dispatcher
-    if not settings.telegram_bot_token:
-        raise RuntimeError(
-            "APP_TELEGRAM_BOT_TOKEN must be set to enable the Telegram bot component."
-        )
-
-    bot = Bot(token=settings.telegram_bot_token)
-    try:
-        await dispatcher.feed_raw_update(bot, payload, settings=settings)
-    finally:
-        await bot.session.close()
-    return Response(status_code=status.HTTP_200_OK)
+    schedule_update(
+        bot=bot,
+        dispatcher=dispatcher,
+        payload=payload,
+    )
+    return Response(
+        content="ACCEPTED",
+        media_type="text/plain",
+        status_code=status.HTTP_202_ACCEPTED,
+    )
