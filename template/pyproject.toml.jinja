@@ -22,6 +22,7 @@ dependencies = [
   "typer>=0.16,<1.0",
 {% if include_http_runtime %}
   "fastapi>=0.115,<1.0",
+  "prometheus-client>=0.22,<1.0",
   "uvicorn[standard]>=0.30,<1.0",
 {% endif %}
 ]
