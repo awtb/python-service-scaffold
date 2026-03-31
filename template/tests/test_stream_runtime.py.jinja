@@ -1,8 +1,11 @@
 import asyncio
 
 from faststream.redis import TestRedisBroker
+from httpx import ASGITransport
+from httpx import AsyncClient
 
-from {{ package_name }}.runtimes.stream.app import broker
+from {{ package_name }}.runtimes.stream.app import build_asgi_app
+from {{ package_name }}.runtimes.stream.app import build_broker
 from {{ package_name }}.settings import get_settings
 
 
@@ -12,6 +15,7 @@ def test_stream_runtime_ping() -> None:
 
 async def _test_stream_runtime_ping() -> None:
     settings = get_settings()
+    broker = build_broker(settings)
 
     async with TestRedisBroker(broker) as test_broker:
         response = await test_broker.request(
@@ -20,3 +24,25 @@ async def _test_stream_runtime_ping() -> None:
         )
 
     assert await response.decode() == f"pong:{settings.service_name}:ping"
+
+
+def test_stream_runtime_healthcheck() -> None:
+    asyncio.run(_test_stream_runtime_healthcheck())
+
+
+async def _test_stream_runtime_healthcheck() -> None:
+    app = build_asgi_app()
+
+    await app.start()
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://testserver",
+        ) as client:
+            health_response = await client.get("/health")
+            internal_response = await client.get("/internal/healthcheck")
+    finally:
+        await app.stop()
+
+    assert health_response.status_code == 204
+    assert internal_response.status_code == 204
