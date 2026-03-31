@@ -1,0 +1,30 @@
+from typing import Any
+
+from aiogram import Bot
+from aiogram import Dispatcher
+from fastapi import APIRouter
+from fastapi import Request
+from fastapi import Response
+from fastapi import status
+
+router = APIRouter(tags=["telegram"])
+
+
+@router.post("/telegram", status_code=status.HTTP_200_OK)
+async def telegram_webhook(
+    payload: dict[str, Any],
+    request: Request,
+) -> Response:
+    settings = request.app.state.settings
+    dispatcher: Dispatcher = request.app.state.telegram_dispatcher
+    if not settings.telegram_bot_token:
+        raise RuntimeError(
+            "APP_TELEGRAM_BOT_TOKEN must be set to enable the Telegram bot component."
+        )
+
+    bot = Bot(token=settings.telegram_bot_token)
+    try:
+        await dispatcher.feed_raw_update(bot, payload, settings=settings)
+    finally:
+        await bot.session.close()
+    return Response(status_code=status.HTTP_200_OK)
