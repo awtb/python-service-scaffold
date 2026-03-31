@@ -8,7 +8,7 @@ import uvicorn
 from {{ package_name }}.settings import get_settings
 {% endif %}
 {% if include_stream_runtime and include_redis_plugin %}
-from {{ package_name }}.runtimes.stream.app import app as stream_app
+from {{ package_name }}.runtimes.stream.app import build_runtime_app
 {% endif %}
 
 app = typer.Typer(
@@ -49,7 +49,7 @@ def run_http(
 
 {% if include_stream_runtime and include_redis_plugin %}
 def _run_stream_runtime() -> None:
-    asyncio.run(stream_app.run())
+    asyncio.run(build_runtime_app().run())
 
 
 @app.command("stream")
