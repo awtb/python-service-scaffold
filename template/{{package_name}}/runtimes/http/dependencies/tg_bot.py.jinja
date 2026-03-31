@@ -1,0 +1,11 @@
+from aiogram import Bot
+from aiogram import Dispatcher
+from fastapi import Request
+
+
+def get_tg_bot(request: Request) -> Bot:
+    return request.app.state.telegram_bot
+
+
+def get_tg_bot_dispatcher(request: Request) -> Dispatcher:
+    return request.app.state.telegram_dispatcher
