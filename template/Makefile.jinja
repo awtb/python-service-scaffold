@@ -6,6 +6,8 @@ install:
 run: install
 {% if include_http_runtime %}
 	uv run python -m {{ package_name }} http --reload
+{% elif include_stream_runtime and include_redis_plugin %}
+	uv run python -m {{ package_name }} stream
 {% else %}
 	uv run python -m {{ package_name }}
 {% endif %}
