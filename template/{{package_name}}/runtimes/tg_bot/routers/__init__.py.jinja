@@ -1,0 +1,12 @@
+from aiogram import Router
+
+from {{ package_name }}.runtimes.tg_bot.routers.ping import router as ping_router
+from {{ package_name }}.runtimes.tg_bot.routers.start import router as start_router
+
+router = Router(name="tg_bot")
+router.include_router(start_router)
+router.include_router(ping_router)
+
+__all__ = [
+    "router",
+]
