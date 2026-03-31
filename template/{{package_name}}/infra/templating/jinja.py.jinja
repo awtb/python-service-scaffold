@@ -1,0 +1,33 @@
+from collections.abc import Mapping
+from typing import Any
+
+from jinja2 import Environment
+from jinja2 import PackageLoader
+from jinja2 import select_autoescape
+
+from {{ package_name }}.protocols.templating import TemplateRenderer
+
+
+class JinjaTemplateRenderer:
+    def __init__(self, environment: Environment) -> None:
+        self._environment = environment
+
+    async def render(
+        self,
+        template_name: str,
+        context: Mapping[str, Any] | None = None,
+    ) -> str:
+        template = self._environment.get_template(template_name)
+        return await template.render_async({} if context is None else dict(context))
+
+
+def create_template_renderer() -> TemplateRenderer:
+    environment = Environment(
+        loader=PackageLoader("{{ package_name }}", "infra/templating/templates"),
+        autoescape=select_autoescape(
+            enabled_extensions=("html", "xml"),
+            default_for_string=False,
+        ),
+        enable_async=True,
+    )
+    return JinjaTemplateRenderer(environment)
