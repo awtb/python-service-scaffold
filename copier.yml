@@ -21,6 +21,9 @@ _exclude:
   - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/schemas/users.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/users.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}tests/test_users_plugin.py{% endif %}"
+  - "{% if not include_templating_component %}{{ package_name }}/infra/templating{% endif %}"
+  - "{% if not include_templating_component %}{{ package_name }}/protocols/templating{% endif %}"
+  - "{% if not include_templating_component %}tests/test_templating_component.py{% endif %}"
 
 project_name:
   type: str
@@ -75,6 +78,11 @@ include_postgresql_plugin:
 include_users_plugin:
   type: bool
   help: Include the ready-to-use users feature package? Requires PostgreSQL.
+  default: false
+
+include_templating_component:
+  type: bool
+  help: Include the Jinja-based templating component and template protocol?
   default: false
 
 include_pre_commit:
