@@ -1,0 +1,15 @@
+import asyncio
+
+from {{ package_name }}.infra.templating import create_template_renderer
+
+
+def test_templating_component_renders_package_template() -> None:
+    asyncio.run(_test_templating_component_renders_package_template())
+
+
+async def _test_templating_component_renders_package_template() -> None:
+    renderer = create_template_renderer()
+
+    rendered = await renderer.render("greeting.jinja", {"username": "World"})
+
+    assert rendered == "Hello World."
