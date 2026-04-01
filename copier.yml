@@ -1,29 +1,31 @@
 _min_copier_version: "9"
 _subdirectory: template
 _exclude:
+  - "{% if not include_tests %}tests{% endif %}"
   - "{% if not include_http_runtime %}{{ package_name }}/runtimes/http{% endif %}"
   - "{% if not include_http_runtime %}{{ package_name }}/infra/metrics{% endif %}"
-  - "{% if not include_http_runtime %}tests/test_healthcheck.py{% endif %}"
+  - "{% if not include_http_runtime %}tests/support/http.py{% endif %}"
+  - "{% if not include_http_runtime %}tests/e2e/test_http_runtime.py{% endif %}"
   - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/tg_bot{% endif %}"
-  - "{% if not include_tg_bot_runtime or not include_http_runtime %}tests/test_tg_bot_runtime.py{% endif %}"
   - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/telegram.py{% endif %}"
   - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/http/dependencies/tg_bot.py{% endif %}"
   - "{% if not include_redis_plugin %}{{ package_name }}/infra/redis{% endif %}"
   - "{% if not include_stream_runtime or not include_redis_plugin %}{{ package_name }}/runtimes/stream{% endif %}"
-  - "{% if not include_stream_runtime or not include_redis_plugin %}tests/test_stream_runtime.py{% endif %}"
   - "{% if not include_postgresql_plugin %}{{ package_name }}/infra/db{% endif %}"
   - "{% if not include_postgresql_plugin %}alembic.ini{% endif %}"
   - "{% if not include_postgresql_plugin %}alembic{% endif %}"
+  - "{% if not include_postgresql_plugin %}tests/support/postgresql.py{% endif %}"
+  - "{% if not include_postgresql_plugin %}tests/integration/test_postgresql_plugin.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/features/users{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/models/user.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/infra/db/models/users.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/dependencies/users.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/schemas/users.py{% endif %}"
   - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/users.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}tests/test_users_plugin.py{% endif %}"
+  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}tests/e2e/test_users_api.py{% endif %}"
   - "{% if not include_templating_component %}{{ package_name }}/infra/templating{% endif %}"
   - "{% if not include_templating_component %}{{ package_name }}/protocols/templating{% endif %}"
-  - "{% if not include_templating_component %}tests/test_templating_component.py{% endif %}"
+  - "{% if not include_templating_component %}tests/unit/test_templating_component.py{% endif %}"
 
 project_name:
   type: str
@@ -89,3 +91,8 @@ include_pre_commit:
   type: bool
   help: Set up pre-commit hooks?
   default: false
+
+include_tests:
+  type: bool
+  help: Include generated tests and test dependencies?
+  default: true
