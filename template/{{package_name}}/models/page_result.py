@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import Generic
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 from .base import BaseModel
 
