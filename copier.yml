@@ -9,20 +9,20 @@ _exclude:
   - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/tg_bot{% endif %}"
   - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/telegram.py{% endif %}"
   - "{% if not include_tg_bot_runtime or not include_http_runtime %}{{ package_name }}/runtimes/http/dependencies/tg_bot.py{% endif %}"
-  - "{% if not include_redis_plugin %}{{ package_name }}/infra/redis{% endif %}"
-  - "{% if not include_stream_runtime or not include_redis_plugin %}{{ package_name }}/runtimes/stream{% endif %}"
-  - "{% if not include_postgresql_plugin %}{{ package_name }}/infra/db{% endif %}"
-  - "{% if not include_postgresql_plugin %}alembic.ini{% endif %}"
-  - "{% if not include_postgresql_plugin %}alembic{% endif %}"
-  - "{% if not include_postgresql_plugin %}tests/support/postgresql.py{% endif %}"
-  - "{% if not include_postgresql_plugin %}tests/integration/test_postgresql_plugin.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/features/users{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/models/user.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin %}{{ package_name }}/infra/db/models/users.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/dependencies/users.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/schemas/users.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/users.py{% endif %}"
-  - "{% if not include_users_plugin or not include_postgresql_plugin or not include_http_runtime %}tests/e2e/test_users_api.py{% endif %}"
+  - "{% if not include_redis_integration %}{{ package_name }}/infra/redis{% endif %}"
+  - "{% if not include_stream_runtime or not include_redis_integration %}{{ package_name }}/runtimes/stream{% endif %}"
+  - "{% if not include_postgresql_integration %}{{ package_name }}/infra/db{% endif %}"
+  - "{% if not include_postgresql_integration %}alembic.ini{% endif %}"
+  - "{% if not include_postgresql_integration %}alembic{% endif %}"
+  - "{% if not include_postgresql_integration %}tests/support/postgresql.py{% endif %}"
+  - "{% if not include_postgresql_integration %}tests/integration/test_postgresql_integration.py{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration %}{{ package_name }}/features/users{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration %}{{ package_name }}/models/user.py{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration %}{{ package_name }}/infra/db/models/users.py{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration or not include_http_runtime %}{{ package_name }}/runtimes/http/dependencies/users.py{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration or not include_http_runtime %}{{ package_name }}/runtimes/http/schemas/users.py{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration or not include_http_runtime %}{{ package_name }}/runtimes/http/routers/users.py{% endif %}"
+  - "{% if not include_users_feature or not include_postgresql_integration or not include_http_runtime %}tests/e2e/test_users_api.py{% endif %}"
   - "{% if not include_templating_component %}{{ package_name }}/infra/templating{% endif %}"
   - "{% if not include_templating_component %}{{ package_name }}/protocols/templating{% endif %}"
   - "{% if not include_templating_component %}tests/unit/test_templating_component.py{% endif %}"
@@ -67,19 +67,19 @@ include_stream_runtime:
   help: Include the stream runtime built with FastStream? Requires Redis integration.
   default: false
 
-include_redis_plugin:
+include_redis_integration:
   type: bool
   help: Include the Redis integration block?
   default: false
 
-include_postgresql_plugin:
+include_postgresql_integration:
   type: bool
-  help: Include the PostgreSQL db plugin?
+  help: Include the PostgreSQL integration block?
   default: false
 
-include_users_plugin:
+include_users_feature:
   type: bool
-  help: Include the ready-to-use users feature package? Requires PostgreSQL.
+  help: Include the ready-to-use users feature package? Requires PostgreSQL integration.
   default: false
 
 include_templating_component:
