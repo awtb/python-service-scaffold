@@ -1,14 +1,12 @@
-# 🧱 Python service scaffold
+# 🧱 Python Service Scaffold
 
-Minimal scaffold for Python services.
+Minimal scaffold for small Python services.
 
-This repository generates small projects from explicit building blocks instead of one large fixed template.
+This repository generates projects from explicit building blocks instead of one large fixed template. The goal is to start small, keep the generated code understandable, and let each service grow by adding only the blocks it actually needs.
 
-## What This Scaffold Is
+## What This Scaffold Is For
 
-Use this scaffold when you want a Python service that starts small, stays readable, and can grow by adding only the parts you actually need.
-
-The generated project is meant to be:
+Use this scaffold when you want a service that is:
 
 - small at the start
 - explicit in structure
@@ -16,14 +14,16 @@ The generated project is meant to be:
 - easy to extend
 - understandable without scaffold internals
 
+This scaffold is not a framework and not a runtime plugin system. It is generation-time composition.
+
 ## Mental Model
 
-A generated project is assembled from a few kinds of generation-time blocks:
+A generated project is assembled from a few block types:
 
 - runtimes: ways to run the service, such as CLI, HTTP, or stream
 - integrations: infrastructure such as PostgreSQL or Redis
-- components: optional adapters such as Telegram bot support or templating
-- features: ready-to-use business slices, such as the sample users package
+- components: optional adapters such as templating or Telegram bot support
+- features: ready-to-use business slices such as the sample users package
 - tooling: project-level setup such as generated tests or pre-commit
 
 The main rule is composition over magic. If a block is not selected, it should not appear in the generated codebase.
@@ -34,8 +34,6 @@ There are two different views of the scaffold:
 
 1. The block view answers: what was selected when the project was generated?
 2. The package view answers: where does code live inside the generated project?
-
-These are related, but they are not the same thing.
 
 Examples:
 
@@ -51,7 +49,7 @@ So:
 
 ## Current Blocks
 
-The current scaffold supports:
+The scaffold currently supports:
 
 - CLI runtime, included by default
 - HTTP runtime with FastAPI
@@ -61,7 +59,7 @@ The current scaffold supports:
 - PostgreSQL integration
 - users feature package, requires PostgreSQL
 - templating component with an async Jinja adapter
-- generated tests for enabled blocks
+- generated tests
 - pre-commit setup
 
 ## Generated Structure
@@ -75,8 +73,7 @@ Generated projects use a small, predictable layout:
 - `models/` for shared business models
 - `tests/` for grouped unit, integration, and end-to-end checks, when tests are enabled
 
-These packages are not separate scaffold block types.
-They are the fixed project structure used to place whatever blocks were enabled.
+These packages are not separate block types. They are the fixed structure used to place whatever blocks were enabled.
 
 The placement rule is:
 
@@ -86,12 +83,6 @@ The placement rule is:
 - shared contracts stay in `protocols/`
 - shared business models stay in `models/`
 
-Typical mappings:
-
-- runtime blocks mostly add code under `runtimes/`
-- integration and component blocks mostly add code under `infra/` and `protocols/`
-- feature blocks mostly add code under `features/`, and sometimes `models/`
-
 ## Quick Start
 
 Generate a project directly from GitHub with Copier:
@@ -100,7 +91,7 @@ Generate a project directly from GitHub with Copier:
 copier copy gh:awtb/python-service-scaffold my-service
 ```
 
-If you prefer a full Git URL, use:
+Or with the full Git URL:
 
 ```bash
 copier copy https://github.com/awtb/python-service-scaffold.git my-service
@@ -127,6 +118,7 @@ copier copy \
   -d include_postgresql_plugin=false \
   -d include_users_plugin=false \
   -d include_templating_component=false \
+  -d include_tests=false \
   gh:awtb/python-service-scaffold \
   cli-service
 ```
@@ -140,7 +132,7 @@ copier copy \
   -d include_http_runtime=true \
   -d include_postgresql_plugin=true \
   -d include_users_plugin=false \
-  -d include_templating_component=false \
+  -d include_tests=true \
   gh:awtb/python-service-scaffold \
   http-service
 ```
@@ -155,9 +147,24 @@ copier copy \
   -d include_tg_bot_runtime=true \
   -d include_postgresql_plugin=false \
   -d include_redis_plugin=false \
-  -d include_templating_component=false \
+  -d include_tests=true \
   gh:awtb/python-service-scaffold \
   bot-service
+```
+
+Render a stream service with Redis:
+
+```bash
+copier copy \
+  -d project_slug='stream-service' \
+  -d package_name='stream_service' \
+  -d include_http_runtime=false \
+  -d include_stream_runtime=true \
+  -d include_redis_plugin=true \
+  -d include_postgresql_plugin=false \
+  -d include_tests=true \
+  gh:awtb/python-service-scaffold \
+  stream-service
 ```
 
 Render a service with only the templating component:
@@ -173,6 +180,7 @@ copier copy \
   -d include_postgresql_plugin=false \
   -d include_users_plugin=false \
   -d include_templating_component=true \
+  -d include_tests=true \
   gh:awtb/python-service-scaffold \
   templating-service
 ```
@@ -195,7 +203,49 @@ And leaves these opt-in:
 - templating
 - pre-commit
 
-Generated tests are included by default and can be disabled when you want a smaller starting point.
+Generated tests are enabled by default and can be disabled with `include_tests=false`.
+
+## Generated Test Suite
+
+When tests are enabled, generated projects organize them by scope:
+
+- `tests/e2e/` for HTTP API behavior
+- `tests/integration/` for infrastructure-backed checks
+- `tests/unit/` for isolated component checks
+- `tests/support/` for shared fixtures and test-only helpers
+
+Current generated coverage is intentionally small:
+
+- HTTP runtime e2e checks when HTTP is enabled
+- users API e2e checks when `http + postgresql + users` are enabled
+- PostgreSQL integration check when PostgreSQL is enabled
+- templating unit check when the templating component is enabled
+
+PostgreSQL-backed tests use a disposable testcontainer. During test database setup, the generated fixture prefers `alembic upgrade head` when real Alembic revisions exist, and otherwise falls back to metadata-based schema creation.
+
+Telegram-specific and stream-specific generated tests are intentionally not included right now.
+
+## Maintainer Workflow
+
+This repository includes a few helper targets for working on the scaffold itself:
+
+- `make render` renders one project variant into `examples/generated/<project-slug>`
+- `make test-rendered` renders a variant and runs that generated project's `make test`
+- `make compose-config-rendered` renders a variant and validates `compose.yaml`
+- `make check-template` runs the default render plus several predefined render variants
+- `make clean-generated` removes rendered examples under `examples/generated/`
+
+Example:
+
+```bash
+make test-rendered \
+  PROJECT_SLUG='users-service' \
+  PACKAGE_NAME='users_service' \
+  INCLUDE_HTTP_RUNTIME=true \
+  INCLUDE_POSTGRESQL_PLUGIN=true \
+  INCLUDE_USERS_PLUGIN=true \
+  INCLUDE_TESTS=true
+```
 
 ## Design Intent
 
