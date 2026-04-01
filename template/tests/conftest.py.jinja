@@ -1,0 +1,4 @@
+pytest_plugins = [
+{% if include_http_runtime %}    "tests.support.http"{% if include_postgresql_plugin %},{% endif %}
+{% endif %}{% if include_postgresql_plugin %}    "tests.support.postgresql"
+{% endif %}]
