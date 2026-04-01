@@ -30,6 +30,9 @@ Enabled in this variant:
 {% if include_users_plugin and include_postgresql_plugin %}
 - Users feature in `{{ package_name }}/features/users/`
 {% endif %}
+{% if include_tests %}
+- Generated tests in `tests/`
+{% endif %}
 
 ## Blocks vs Code Layout
 
@@ -61,11 +64,13 @@ Run the project:
 make run
 ```
 
+{% if include_tests %}
 Run tests:
 
 ```bash
 make test
 ```
+{% endif %}
 
 {% if include_http_runtime or include_redis_plugin %}
 Run with Docker:
@@ -101,7 +106,11 @@ The generated project is intentionally small:
 - `{{ package_name }}/infra/` contains infrastructure adapters
 - `{{ package_name }}/protocols/` contains interfaces used across layers
 - `{{ package_name }}/models/` contains shared business models
-- `tests/` contains checks for the blocks included in this project
+{% if include_tests %}
+- `tests/unit/` contains isolated component checks
+- `tests/integration/` contains runtime or infrastructure integration checks
+- `tests/e2e/` contains HTTP API behavior checks
+{% endif %}
 
 These packages are the fixed structure of the project.
 The enabled blocks are placed into this structure.
@@ -214,6 +223,21 @@ Configure:
 - `APP_DB_DRIVER_SYNC`
 
 Runtime access uses SQLAlchemy `AsyncSession`.
+{% endif %}
+
+{% if include_tests %}
+### Test Suite
+
+Generated tests live under `tests/`.
+
+HTTP API checks live under `tests/e2e/`.
+Shared test fixtures and setup helpers live under `tests/support/`.
+{% if include_http_runtime %}
+HTTP variants expose a shared FastAPI `TestClient` fixture for route-level checks.
+{% endif %}
+{% if include_postgresql_plugin %}
+PostgreSQL variants also configure a disposable testcontainer-backed database fixture for `tests/integration/` and database-backed `tests/e2e/`.
+{% endif %}
 {% endif %}
 
 {% if include_users_plugin and include_postgresql_plugin %}
