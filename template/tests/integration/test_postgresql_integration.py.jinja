@@ -1,0 +1,33 @@
+import asyncio
+
+from sqlalchemy import text
+
+from {{ package_name }}.infra.db.session import create_db_engine
+from {{ package_name }}.settings import Settings
+
+
+def test_postgresql_integration_connects(postgres_database) -> None:
+    settings = Settings(
+        db_host=postgres_database.host,
+        db_port=postgres_database.port,
+        db_name=postgres_database.name,
+        db_user=postgres_database.user,
+        db_password=postgres_database.password,
+        db_driver=postgres_database.driver,
+        db_driver_sync=postgres_database.driver_sync,
+{% if include_tg_bot_runtime and include_http_runtime %}
+        telegram_bot_token="123456:TEST_TOKEN",
+        telegram_webhook_url="https://example.com/telegram",
+{% endif %}
+    )
+    engine = create_db_engine(settings)
+
+    async def _assert_connection() -> None:
+        async with engine.connect() as connection:
+            result = await connection.scalar(text("select 1"))
+            assert result == 1
+
+    try:
+        asyncio.run(_assert_connection())
+    finally:
+        asyncio.run(engine.dispose())
