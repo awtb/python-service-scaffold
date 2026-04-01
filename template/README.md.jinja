@@ -15,19 +15,19 @@ Enabled in this variant:
 {% if include_tg_bot_runtime and include_http_runtime %}
 - Telegram bot component in `{{ package_name }}/runtimes/tg_bot/`
 {% endif %}
-{% if include_stream_runtime and include_redis_plugin %}
+{% if include_stream_runtime and include_redis_integration %}
 - Stream runtime in `{{ package_name }}/runtimes/stream/`
 {% endif %}
-{% if include_postgresql_plugin %}
+{% if include_postgresql_integration %}
 - PostgreSQL integration in `{{ package_name }}/infra/db/`
 {% endif %}
-{% if include_redis_plugin %}
+{% if include_redis_integration %}
 - Redis integration in `{{ package_name }}/infra/redis/`
 {% endif %}
 {% if include_templating_component %}
 - Templating component in `{{ package_name }}/infra/templating/`
 {% endif %}
-{% if include_users_plugin and include_postgresql_plugin %}
+{% if include_users_feature and include_postgresql_integration %}
 - Users feature in `{{ package_name }}/features/users/`
 {% endif %}
 {% if include_tests %}
@@ -72,7 +72,7 @@ make test
 ```
 {% endif %}
 
-{% if include_http_runtime or include_redis_plugin %}
+{% if include_http_runtime or include_redis_integration %}
 Run with Docker:
 
 ```bash
@@ -154,7 +154,7 @@ Configure:
 The starter bot includes `/start`, `/ping`, and a small inline callback flow.
 {% endif %}
 
-{% if include_stream_runtime and include_redis_plugin %}
+{% if include_stream_runtime and include_redis_integration %}
 ### Stream Runtime
 
 The stream runtime lives in `{{ package_name }}/runtimes/stream/`.
@@ -193,7 +193,7 @@ The sample template is:
 The generated renderer uses Jinja and exposes an async `render(...)` interface.
 {% endif %}
 
-{% if include_redis_plugin %}
+{% if include_redis_integration %}
 ### Redis Integration
 
 Redis helpers live in `{{ package_name }}/infra/redis/`.
@@ -205,7 +205,7 @@ Configure:
 - `APP_REDIS_URL`
 {% endif %}
 
-{% if include_postgresql_plugin %}
+{% if include_postgresql_integration %}
 ### PostgreSQL Integration
 
 Database code lives in `{{ package_name }}/infra/db/`.
@@ -235,12 +235,12 @@ Shared test fixtures and setup helpers live under `tests/support/`.
 {% if include_http_runtime %}
 HTTP variants expose a shared FastAPI `TestClient` fixture for route-level checks.
 {% endif %}
-{% if include_postgresql_plugin %}
+{% if include_postgresql_integration %}
 PostgreSQL variants also configure a disposable testcontainer-backed database fixture for `tests/integration/` and database-backed `tests/e2e/`.
 {% endif %}
 {% endif %}
 
-{% if include_users_plugin and include_postgresql_plugin %}
+{% if include_users_feature and include_postgresql_integration %}
 ### Users Feature
 
 The ready-to-use users feature lives in `{{ package_name }}/features/users/`.
@@ -256,7 +256,7 @@ The HTTP runtime also exposes:
 {% endif %}
 {% endif %}
 
-{% if not include_http_runtime and not (include_stream_runtime and include_redis_plugin) %}
+{% if not include_http_runtime and not (include_stream_runtime and include_redis_integration) %}
 ## No Runtime Enabled
 
 This variant does not include an HTTP or stream runtime.
