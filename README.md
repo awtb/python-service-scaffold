@@ -105,6 +105,18 @@ cd my-service
 
 ## Useful Render Variants
 
+Common variants at a glance:
+
+| Variant | HTTP | TG Bot | Stream | Redis | PostgreSQL | Users | Templating | Tests |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CLI only | no | no | no | no | no | no | no | optional |
+| HTTP + PostgreSQL | yes | no | no | no | yes | optional | no | yes |
+| HTTP + Telegram | yes | yes | no | no | no | no | no | yes |
+| Stream + Redis | no | no | yes | yes | no | no | no | yes |
+| Templating only | no | no | no | no | no | no | yes | yes |
+
+Two full examples:
+
 Render a minimal CLI-only service:
 
 ```bash
@@ -114,76 +126,34 @@ copier copy \
   -d include_http_runtime=false \
   -d include_tg_bot_runtime=false \
   -d include_stream_runtime=false \
-  -d include_redis_plugin=false \
-  -d include_postgresql_plugin=false \
-  -d include_users_plugin=false \
+  -d include_redis_integration=false \
+  -d include_postgresql_integration=false \
+  -d include_users_feature=false \
   -d include_templating_component=false \
   -d include_tests=false \
   gh:awtb/python-service-scaffold \
   cli-service
 ```
 
-Render an HTTP service with PostgreSQL:
+Render an HTTP service with PostgreSQL and the users feature:
 
 ```bash
 copier copy \
-  -d project_slug='http-service' \
-  -d package_name='http_service' \
+  -d project_slug='users-service' \
+  -d package_name='users_service' \
   -d include_http_runtime=true \
-  -d include_postgresql_plugin=true \
-  -d include_users_plugin=false \
-  -d include_tests=true \
-  gh:awtb/python-service-scaffold \
-  http-service
-```
-
-Render an HTTP service with Telegram bot support:
-
-```bash
-copier copy \
-  -d project_slug='bot-service' \
-  -d package_name='bot_service' \
-  -d include_http_runtime=true \
-  -d include_tg_bot_runtime=true \
-  -d include_postgresql_plugin=false \
-  -d include_redis_plugin=false \
-  -d include_tests=true \
-  gh:awtb/python-service-scaffold \
-  bot-service
-```
-
-Render a stream service with Redis:
-
-```bash
-copier copy \
-  -d project_slug='stream-service' \
-  -d package_name='stream_service' \
-  -d include_http_runtime=false \
-  -d include_stream_runtime=true \
-  -d include_redis_plugin=true \
-  -d include_postgresql_plugin=false \
-  -d include_tests=true \
-  gh:awtb/python-service-scaffold \
-  stream-service
-```
-
-Render a service with only the templating component:
-
-```bash
-copier copy \
-  -d project_slug='templating-service' \
-  -d package_name='templating_service' \
-  -d include_http_runtime=false \
   -d include_tg_bot_runtime=false \
   -d include_stream_runtime=false \
-  -d include_redis_plugin=false \
-  -d include_postgresql_plugin=false \
-  -d include_users_plugin=false \
-  -d include_templating_component=true \
+  -d include_redis_integration=false \
+  -d include_postgresql_integration=true \
+  -d include_users_feature=true \
+  -d include_templating_component=false \
   -d include_tests=true \
   gh:awtb/python-service-scaffold \
-  templating-service
+  users-service
 ```
+
+Use the matrix above to toggle only the flags you need for other variants.
 
 ## Template Defaults
 
@@ -217,7 +187,7 @@ When tests are enabled, generated projects organize them by scope:
 Current generated coverage is intentionally small:
 
 - HTTP runtime e2e checks when HTTP is enabled
-- users API e2e checks when `http + postgresql + users` are enabled
+- users API e2e checks when `http + postgresql integration + users feature` are enabled
 - PostgreSQL integration check when PostgreSQL is enabled
 - templating unit check when the templating component is enabled
 
@@ -242,8 +212,8 @@ make test-rendered \
   PROJECT_SLUG='users-service' \
   PACKAGE_NAME='users_service' \
   INCLUDE_HTTP_RUNTIME=true \
-  INCLUDE_POSTGRESQL_PLUGIN=true \
-  INCLUDE_USERS_PLUGIN=true \
+  INCLUDE_POSTGRESQL_INTEGRATION=true \
+  INCLUDE_USERS_FEATURE=true \
   INCLUDE_TESTS=true
 ```
 
