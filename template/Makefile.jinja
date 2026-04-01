@@ -1,4 +1,4 @@
-.PHONY: install run test{% if include_pre_commit %} hooks pre-commit{% endif %}
+.PHONY: install run{% if include_tests %} test{% endif %}{% if include_pre_commit %} hooks pre-commit{% endif %}
 
 install:
 	uv sync --extra dev
@@ -12,8 +12,10 @@ run: install
 	uv run python -m {{ package_name }}
 {% endif %}
 
+{% if include_tests %}
 test: install
 	uv run pytest
+{% endif %}
 {% if include_pre_commit %}
 
 hooks: install
