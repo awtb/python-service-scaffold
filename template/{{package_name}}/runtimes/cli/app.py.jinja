@@ -1,4 +1,4 @@
-{% if include_stream_runtime and include_redis_plugin %}
+{% if include_stream_runtime and include_redis_integration %}
 import asyncio
 {% endif %}
 import typer
@@ -7,7 +7,7 @@ import uvicorn
 
 from {{ package_name }}.settings import get_settings
 {% endif %}
-{% if include_stream_runtime and include_redis_plugin %}
+{% if include_stream_runtime and include_redis_integration %}
 from {{ package_name }}.runtimes.stream.app import build_runtime_app
 {% endif %}
 
@@ -47,7 +47,7 @@ def run_http(
     _run_http_runtime(reload=reload)
 {% endif %}
 
-{% if include_stream_runtime and include_redis_plugin %}
+{% if include_stream_runtime and include_redis_integration %}
 def _run_stream_runtime() -> None:
     asyncio.run(build_runtime_app().run())
 
