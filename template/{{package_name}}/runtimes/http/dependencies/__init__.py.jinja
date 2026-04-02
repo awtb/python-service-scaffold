@@ -1,34 +1,40 @@
+{%- set imports -%}
 from .pagination import get_pagination_params
 from .pagination import PaginationParams
-{% if include_postgresql_integration %}
+{% if include_postgresql_integration -%}
 from .db import get_sqlalchemy_uow
-{% endif %}
-{% if include_tg_bot_runtime and include_http_runtime %}
+{% endif -%}
+{% if include_tg_bot_runtime and include_http_runtime -%}
 from .tg_bot import get_tg_bot
 from .tg_bot import get_tg_bot_dispatcher
-{% endif %}
-
-{% if include_users_feature and include_postgresql_integration %}
+{% endif -%}
+{% if include_users_feature and include_postgresql_integration -%}
 from .users import get_authenticate_user_use_case
 from .users import get_current_user
 from .users import get_get_user_use_case
 from .users import get_list_users_use_case
-{% endif %}
+{% endif -%}
+{%- endset -%}
+{%- set exported_names -%}
+"get_pagination_params",
+"PaginationParams",
+{% if include_postgresql_integration -%}
+"get_sqlalchemy_uow",
+{% endif -%}
+{% if include_tg_bot_runtime and include_http_runtime -%}
+"get_tg_bot",
+"get_tg_bot_dispatcher",
+{% endif -%}
+{% if include_users_feature and include_postgresql_integration -%}
+ "get_authenticate_user_use_case",
+"get_current_user",
+"get_get_user_use_case",
+"get_list_users_use_case",
+{% endif -%}
+{%- endset -%}
+{{ imports | trim }}
+
 
 __all__ = [
-{% if include_postgresql_integration %}
-    "get_sqlalchemy_uow",
-{% endif %}
-    "get_pagination_params",
-    "PaginationParams",
-{% if include_tg_bot_runtime and include_http_runtime %}
-    "get_tg_bot",
-    "get_tg_bot_dispatcher",
-{% endif %}
-{% if include_users_feature and include_postgresql_integration %}
-    "get_authenticate_user_use_case",
-    "get_current_user",
-    "get_get_user_use_case",
-    "get_list_users_use_case",
-{% endif %}
+{{ exported_names | trim | indent(4, true) }}
 ]
