@@ -1,7 +1,7 @@
 from {{ package_name }}.features.users.contracts import ListUsersCommand
+from {{ package_name }}.features.users.models import User
 from {{ package_name }}.features.users.ports import UsersRepositoryFactory
 from {{ package_name }}.models.page_result import PageResult
-from {{ package_name }}.models.user import User
 from {{ package_name }}.protocols import UnitOfWork
 
 
