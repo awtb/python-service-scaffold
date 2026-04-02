@@ -10,10 +10,10 @@ from {{ package_name }}.features.users.contracts import AuthenticateUserCommand
 from {{ package_name }}.features.users.exceptions import AuthenticationError
 from {{ package_name }}.features.users.contracts import GetUserCommand
 from {{ package_name }}.features.users.contracts import ListUsersCommand
+from {{ package_name }}.features.users.models import User
 from {{ package_name }}.features.users.use_cases import AuthenticateUserUseCase
 from {{ package_name }}.features.users.use_cases import GetUserUseCase
 from {{ package_name }}.features.users.use_cases import ListUsersUseCase
-from {{ package_name }}.models.user import User
 from {{ package_name }}.runtimes.http.dependencies import get_authenticate_user_use_case
 from {{ package_name }}.runtimes.http.dependencies import get_current_user
 from {{ package_name }}.runtimes.http.dependencies import get_get_user_use_case
