@@ -1,7 +1,7 @@
 from {{ package_name }}.protocols.db import UnitOfWork
-{% if include_templating_component %}
+{% if include_templating_component -%}
 from {{ package_name }}.protocols.templating import TemplateRenderer
-{% endif %}
+{% endif -%}
 from {{ package_name }}.protocols.redis import RedisClient
 from {{ package_name }}.protocols.redis import RedisClientFactory
 from {{ package_name }}.protocols.redis import RedisValue
@@ -10,8 +10,8 @@ __all__ = [
     "RedisClient",
     "RedisClientFactory",
     "RedisValue",
-{% if include_templating_component %}
+{% if include_templating_component -%}
     "TemplateRenderer",
-{% endif %}
+{% endif -%}
     "UnitOfWork",
 ]
