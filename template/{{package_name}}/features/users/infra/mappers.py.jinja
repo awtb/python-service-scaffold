@@ -1,13 +1,6 @@
-from {{ package_name }}.infra.db.models.users import UserRecord
+from {{ package_name }}.infra.db.models.user import UserRecord
 from {{ package_name }}.models.user import User
-
-
-def create_user_record(email: str, full_name: str) -> UserRecord:
-    return UserRecord(
-        email=email,
-        full_name=full_name,
-        is_active=True,
-    )
+from {{ package_name }}.models.user import UserCredentials
 
 
 def to_user_model(record: UserRecord) -> User:
@@ -17,4 +10,11 @@ def to_user_model(record: UserRecord) -> User:
         full_name=record.full_name,
         is_active=record.is_active,
         created_at=record.created_at,
+    )
+
+
+def to_user_credentials(record: UserRecord) -> UserCredentials:
+    return UserCredentials(
+        user=to_user_model(record),
+        password_hash=record.password_hash,
     )
