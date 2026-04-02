@@ -1,22 +1,24 @@
+{%- set run_command -%}
+{% if include_http_runtime -%}
+uv run python -m {{ package_name }} http --reload
+{% elif include_stream_runtime and include_redis_integration -%}
+uv run python -m {{ package_name }} stream
+{% else -%}
+uv run python -m {{ package_name }}
+{% endif -%}
+{%- endset -%}
 .PHONY: install run{% if include_tests %} test{% endif %}{% if include_pre_commit %} hooks pre-commit{% endif %}
 
 install:
 	uv sync --extra dev
 
 run: install
-{% if include_http_runtime %}
-	uv run python -m {{ package_name }} http --reload
-{% elif include_stream_runtime and include_redis_integration %}
-	uv run python -m {{ package_name }} stream
-{% else %}
-	uv run python -m {{ package_name }}
-{% endif %}
-
+	{{ run_command | trim }}
 {% if include_tests %}
+
 test: install
 	uv run pytest
-{% endif %}
-{% if include_pre_commit %}
+{% endif %}{% if include_pre_commit %}
 
 hooks: install
 	uv run pre-commit install
