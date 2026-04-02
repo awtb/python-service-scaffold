@@ -24,6 +24,10 @@ def _apply_http_test_env(
     monkeypatch.setenv("APP_DB_PASSWORD", postgres_database.password)
     monkeypatch.setenv("APP_DB_DRIVER", postgres_database.driver)
     monkeypatch.setenv("APP_DB_DRIVER_SYNC", postgres_database.driver_sync)
+{% if include_users_feature %}
+    monkeypatch.setenv("APP_JWT_SECRET_KEY", "test-secret-key-with-32-bytes-minimum")
+    monkeypatch.setenv("APP_JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+{% endif %}
 {% endif %}
 {% if not include_tg_bot_runtime and not include_postgresql_integration %}
     pass
