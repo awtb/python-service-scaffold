@@ -6,7 +6,7 @@ from uuid import UUID
 import jwt
 
 from {{ package_name }}.features.users.contracts import AccessToken
-from {{ package_name }}.models.user import User
+from {{ package_name }}.features.users.models import User
 
 
 class JwtAccessTokenService:
