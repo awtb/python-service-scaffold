@@ -1,11 +1,11 @@
 from {{ package_name }}.infra.db.models.base import Base
-{% if include_users_feature %}
+{% if include_users_feature -%}
 from {{ package_name }}.infra.db.models.user import UserRecord
-{% endif %}
+{% endif -%}
 
 __all__ = [
     "Base",
-{% if include_users_feature %}
+{% if include_users_feature -%}
     "UserRecord",
-{% endif %}
+{% endif -%}
 ]
