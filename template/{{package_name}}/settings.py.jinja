@@ -1,8 +1,50 @@
-{% if include_postgresql_integration %}
+{%- set imports -%}
+{% if include_postgresql_integration -%}
 from sqlalchemy import URL
-{% endif %}
 
+{% endif -%}
 from pydantic_settings import BaseSettings, SettingsConfigDict
+{%- endset -%}
+{%- set fields -%}
+logging_mode: str = "plain"
+logging_lvl: str = "INFO"
+service_name: str = "{{ project_slug }}"
+{% if include_postgresql_integration -%}
+db_host: str = "localhost"
+db_port: int = 5432
+db_name: str = "app"
+db_user: str = "app"
+db_password: str = "app"
+db_driver: str = "postgresql+asyncpg"
+db_driver_sync: str = "postgresql+psycopg2"
+db_echo: bool = False
+{% endif -%}
+{% if include_users_feature and include_postgresql_integration -%}
+jwt_secret_key: str = "change-this-jwt-secret-key-before-production"
+jwt_algorithm: str = "HS256"
+jwt_access_token_expire_minutes: int = 60
+{% endif -%}
+{% if include_http_runtime -%}
+host: str = "0.0.0.0"
+port: int = 8000
+workers_count: int = 1
+cors_allow_origins: list[str] = ["*"]
+cors_allow_methods: list[str] = ["*"]
+cors_allow_headers: list[str] = ["*"]
+cors_allow_credentials: bool = False
+{% endif -%}
+{% if include_tg_bot_runtime and include_http_runtime -%}
+telegram_bot_token: str
+telegram_webhook_url: str
+{% endif -%}
+{% if include_redis_integration -%}
+redis_url: str = "redis://localhost:6379/0"
+{% endif -%}
+{% if include_stream_runtime and include_redis_integration -%}
+stream_ping_stream: str = "{{ project_slug }}.ping"
+{% endif -%}
+{%- endset -%}
+{{ imports | trim }}
 
 
 class Settings(BaseSettings):
@@ -12,45 +54,9 @@ class Settings(BaseSettings):
         env_prefix="APP_",
     )
 
-    logging_mode: str = "plain"
-    logging_lvl: str = "INFO"
-    service_name: str = "{{ project_slug }}"
+{{ fields | trim | indent(4, true) }}
 {% if include_postgresql_integration %}
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_name: str = "app"
-    db_user: str = "app"
-    db_password: str = "app"
-    db_driver: str = "postgresql+asyncpg"
-    db_driver_sync: str = "postgresql+psycopg2"
-    db_echo: bool = False
-{% endif %}
-{% if include_users_feature and include_postgresql_integration %}
-    jwt_secret_key: str = "change-this-jwt-secret-key-before-production"
-    jwt_algorithm: str = "HS256"
-    jwt_access_token_expire_minutes: int = 60
-{% endif %}
-{% if include_http_runtime %}
-    host: str = "0.0.0.0"
-    port: int = 8000
-    workers_count: int = 1
-    cors_allow_origins: list[str] = ["*"]
-    cors_allow_methods: list[str] = ["*"]
-    cors_allow_headers: list[str] = ["*"]
-    cors_allow_credentials: bool = False
-{% endif %}
-{% if include_tg_bot_runtime and include_http_runtime %}
-    telegram_bot_token: str
-    telegram_webhook_url: str
-{% endif %}
-{% if include_redis_integration %}
-    redis_url: str = "redis://localhost:6379/0"
-{% endif %}
-{% if include_stream_runtime and include_redis_integration %}
-    stream_ping_stream: str = "{{ project_slug }}.ping"
-{% endif %}
 
-{% if include_postgresql_integration %}
     @property
     def database_url(self) -> URL:
         return self._build_database_url(self.db_driver)
@@ -69,15 +75,16 @@ class Settings(BaseSettings):
             database=self.db_name,
         )
 {% endif %}
+
+
 def get_settings() -> Settings:
     return Settings()
-
-
 {% if include_postgresql_integration %}
+
+
 def get_database_settings() -> Settings:
     return get_settings()
-{% endif %}
-{% if include_redis_integration %}
+{% endif %}{% if include_redis_integration %}
 
 
 def get_redis_settings() -> Settings:
