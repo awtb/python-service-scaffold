@@ -9,7 +9,8 @@ from .tg_bot import get_tg_bot_dispatcher
 {% endif %}
 
 {% if include_users_feature and include_postgresql_integration %}
-from .users import get_create_user_use_case
+from .users import get_authenticate_user_use_case
+from .users import get_current_user
 from .users import get_get_user_use_case
 from .users import get_list_users_use_case
 {% endif %}
@@ -25,7 +26,8 @@ __all__ = [
     "get_tg_bot_dispatcher",
 {% endif %}
 {% if include_users_feature and include_postgresql_integration %}
-    "get_create_user_use_case",
+    "get_authenticate_user_use_case",
+    "get_current_user",
     "get_get_user_use_case",
     "get_list_users_use_case",
 {% endif %}
