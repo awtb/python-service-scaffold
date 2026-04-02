@@ -5,9 +5,10 @@ from pydantic import Field
 
 from .base import BaseSchema
 
-class CreateUserPayload(BaseSchema):
-    email: str = Field(min_length=3, max_length=255)
-    full_name: str = Field(min_length=1, max_length=255)
+class AccessTokenResponse(BaseSchema):
+    access_token: str
+    token_type: str
+    expires_in: int = Field(gt=0)
 
 
 class UserResponse(BaseSchema):
