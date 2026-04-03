@@ -11,6 +11,25 @@ _REQUEST_ID_HEADER = "X-Request-ID"
 _REQUEST_LOGGER = structlog.get_logger(__name__)
 
 
+def _log_request(
+    request: Request,
+    request_id: str,
+    status_code: int,
+    duration_ms: float,
+    *,
+    exc_info: bool = False,
+) -> None:
+    log = _REQUEST_LOGGER.exception if exc_info else _REQUEST_LOGGER.info
+    log(
+        "http_request",
+        request_id=request_id,
+        method=request.method,
+        path=request.url.path,
+        status_code=status_code,
+        duration_ms=round(duration_ms, 2),
+    )
+
+
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
@@ -26,25 +45,19 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             status_code = response.status_code
         except Exception:
+            # Unhandled 500 responses are generated outside user middleware,
+            # so logging must happen before re-raising.
             duration_ms = (perf_counter() - started_at) * 1000
-            _REQUEST_LOGGER.exception(
-                "http_request",
-                request_id=request_id,
-                method=request.method,
-                path=request.url.path,
-                status_code=status_code,
-                duration_ms=round(duration_ms, 2),
+            _log_request(
+                request,
+                request_id,
+                status_code,
+                duration_ms,
+                exc_info=True,
             )
             raise
 
         duration_ms = (perf_counter() - started_at) * 1000
         response.headers[_REQUEST_ID_HEADER] = request_id
-        _REQUEST_LOGGER.info(
-            "http_request",
-            request_id=request_id,
-            method=request.method,
-            path=request.url.path,
-            status_code=status_code,
-            duration_ms=round(duration_ms, 2),
-        )
+        _log_request(request, request_id, status_code, duration_ms)
         return response
