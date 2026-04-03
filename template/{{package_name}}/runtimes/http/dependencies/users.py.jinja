@@ -3,14 +3,17 @@ from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
 
-from {{ package_name }}.features.users.dto import UserDTO
+from {{ package_name }}.features.users.dto import CurrentUserDTO
 from {{ package_name }}.features.users.infra import JwtAccessTokenService
 from {{ package_name }}.features.users.infra import Pbkdf2PasswordService
 from {{ package_name }}.features.users.infra import build_users_repository
+from {{ package_name }}.features.users.protocols import AccessTokenService
+from {{ package_name }}.features.users.protocols import PasswordService
 from {{ package_name }}.features.users.use_cases import AuthenticateUserUseCase
+from {{ package_name }}.features.users.use_cases import GetCurrentUserUseCase
 from {{ package_name }}.features.users.use_cases import GetUserUseCase
 from {{ package_name }}.features.users.use_cases import ListUsersUseCase
-from {{ package_name }}.infra.db import SqlAlchemyUnitOfWork
+from {{ package_name }}.protocols import UnitOfWork
 from {{ package_name }}.settings import Settings
 from {{ package_name }}.settings import get_settings
 
@@ -19,7 +22,9 @@ from .db import get_sqlalchemy_uow
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-def _build_access_token_service(settings: Settings) -> JwtAccessTokenService:
+def get_access_token_service(
+    settings: Settings = Depends(get_settings),
+) -> AccessTokenService:
     return JwtAccessTokenService(
         secret_key=settings.jwt_secret_key,
         algorithm=settings.jwt_algorithm,
@@ -27,7 +32,7 @@ def _build_access_token_service(settings: Settings) -> JwtAccessTokenService:
     )
 
 
-def _build_password_service() -> Pbkdf2PasswordService:
+def get_password_service() -> PasswordService:
     return Pbkdf2PasswordService()
 
 
@@ -40,19 +45,28 @@ def _build_unauthorized_error(detail: str = "Invalid access token.") -> HTTPExce
 
 
 def get_authenticate_user_use_case(
-    uow: SqlAlchemyUnitOfWork = Depends(get_sqlalchemy_uow),
-    settings: Settings = Depends(get_settings),
+    uow: UnitOfWork = Depends(get_sqlalchemy_uow),
+    access_token_service: AccessTokenService = Depends(get_access_token_service),
+    password_service: PasswordService = Depends(get_password_service),
 ) -> AuthenticateUserUseCase:
     return AuthenticateUserUseCase(
         repository_factory=build_users_repository,
-        access_token_service=_build_access_token_service(settings),
-        password_service=_build_password_service(),
+        access_token_service=access_token_service,
+        password_service=password_service,
         uow=uow,
     )
 
 
+def get_current_user_use_case(
+    access_token_service: AccessTokenService = Depends(get_access_token_service),
+) -> GetCurrentUserUseCase:
+    return GetCurrentUserUseCase(
+        access_token_service=access_token_service,
+    )
+
+
 def get_get_user_use_case(
-    uow: SqlAlchemyUnitOfWork = Depends(get_sqlalchemy_uow),
+    uow: UnitOfWork = Depends(get_sqlalchemy_uow),
 ) -> GetUserUseCase:
     return GetUserUseCase(
         repository_factory=build_users_repository,
@@ -61,7 +75,7 @@ def get_get_user_use_case(
 
 
 def get_list_users_use_case(
-    uow: SqlAlchemyUnitOfWork = Depends(get_sqlalchemy_uow),
+    uow: UnitOfWork = Depends(get_sqlalchemy_uow),
 ) -> ListUsersUseCase:
     return ListUsersUseCase(
         repository_factory=build_users_repository,
@@ -71,21 +85,9 @@ def get_list_users_use_case(
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
-    uow: SqlAlchemyUnitOfWork = Depends(get_sqlalchemy_uow),
-    settings: Settings = Depends(get_settings),
-) -> UserDTO:
-    access_token_service = _build_access_token_service(settings)
-
+    use_case: GetCurrentUserUseCase = Depends(get_current_user_use_case),
+) -> CurrentUserDTO:
     try:
-        user_id = access_token_service.get_subject(token)
+        return await use_case.execute(token)
     except ValueError as exc:
         raise _build_unauthorized_error() from exc
-
-    async with uow as current_uow:
-        repository = build_users_repository(current_uow)
-        user = await repository.get_by_id(user_id)
-
-    if user is None or not user.is_active:
-        raise _build_unauthorized_error()
-
-    return user
