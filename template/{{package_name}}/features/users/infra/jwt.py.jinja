@@ -5,6 +5,8 @@ from uuid import UUID
 
 import jwt
 
+from {{ package_name }}.features.users.dto import CurrentUserDTO
+
 
 class JwtAccessTokenService:
     def __init__(
@@ -22,18 +24,20 @@ class JwtAccessTokenService:
     def expires_in_seconds(self) -> int:
         return int(self._access_token_ttl.total_seconds())
 
-    def issue_for_subject(self, subject: UUID) -> str:
+    def issue_for_user(self, user: CurrentUserDTO) -> str:
         issued_at = datetime.now(UTC)
         expires_at = issued_at + self._access_token_ttl
         payload = {
-            "sub": str(subject),
+            "sub": str(user.id),
+            "email": user.email,
+            "full_name": user.full_name,
             "type": "access",
             "iat": issued_at,
             "exp": expires_at,
         }
         return jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
 
-    def get_subject(self, token: str) -> UUID:
+    def get_current_user(self, token: str) -> CurrentUserDTO:
         try:
             payload = jwt.decode(
                 token,
@@ -50,7 +54,21 @@ class JwtAccessTokenService:
         if not isinstance(subject, str):
             raise ValueError("Invalid access token.")
 
+        email = payload.get("email")
+        if not isinstance(email, str):
+            raise ValueError("Invalid access token.")
+
+        full_name = payload.get("full_name")
+        if not isinstance(full_name, str):
+            raise ValueError("Invalid access token.")
+
         try:
-            return UUID(subject)
+            user_id = UUID(subject)
         except ValueError as exc:
             raise ValueError("Invalid access token.") from exc
+
+        return CurrentUserDTO(
+            id=user_id,
+            email=email,
+            full_name=full_name,
+        )
