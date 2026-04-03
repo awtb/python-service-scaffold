@@ -17,7 +17,7 @@ async def handle_authentication_error(
         request,
         HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(exc),
+            detail=exc.message,
             headers={"WWW-Authenticate": "Bearer"},
         ),
     )
