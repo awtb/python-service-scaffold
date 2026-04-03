@@ -12,6 +12,25 @@ from {{ package_name }}.infra.metrics.utils import resolve_request_route
 from {{ package_name }}.infra.metrics.utils import status_code_to_class
 
 
+def _observe_request(
+    method: str,
+    route: str,
+    status_code: int,
+    duration_seconds: float,
+) -> None:
+    status_class = status_code_to_class(status_code)
+    http_requests_total.labels(
+        method=method,
+        route=route,
+        status_class=status_class,
+    ).inc()
+    http_request_duration_seconds.labels(
+        method=method,
+        route=route,
+        status_class=status_class,
+    ).observe(duration_seconds)
+
+
 class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
@@ -29,32 +48,14 @@ class PrometheusMetricsMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             status_code = response.status_code
         except Exception:
+            # Unhandled 500 responses are emitted outside user middleware,
+            # so metrics must be recorded before re-raising.
             duration_seconds = perf_counter() - started_at
-            status_class = status_code_to_class(status_code)
-            http_requests_total.labels(
-                method=method,
-                route=route,
-                status_class=status_class,
-            ).inc()
-            http_request_duration_seconds.labels(
-                method=method,
-                route=route,
-                status_class=status_class,
-            ).observe(duration_seconds)
+            _observe_request(method, route, status_code, duration_seconds)
             raise
         finally:
             http_requests_in_progress.labels(method=method, route=route).dec()
 
         duration_seconds = perf_counter() - started_at
-        status_class = status_code_to_class(status_code)
-        http_requests_total.labels(
-            method=method,
-            route=route,
-            status_class=status_class,
-        ).inc()
-        http_request_duration_seconds.labels(
-            method=method,
-            route=route,
-            status_class=status_class,
-        ).observe(duration_seconds)
+        _observe_request(method, route, status_code, duration_seconds)
         return response
