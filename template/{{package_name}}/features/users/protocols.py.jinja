@@ -3,6 +3,7 @@ from typing import Protocol
 from uuid import UUID
 
 from {{ package_name }}.dto import PageDTO
+from {{ package_name }}.features.users.dto import CurrentUserDTO
 from {{ package_name }}.features.users.dto import UserCredentialsDTO
 from {{ package_name }}.features.users.dto import UserDTO
 from {{ package_name }}.protocols import UnitOfWork
@@ -20,9 +21,9 @@ class AccessTokenService(Protocol):
     @property
     def expires_in_seconds(self) -> int: ...
 
-    def issue_for_subject(self, subject: UUID) -> str: ...
+    def issue_for_user(self, user: CurrentUserDTO) -> str: ...
 
-    def get_subject(self, token: str) -> UUID: ...
+    def get_current_user(self, token: str) -> CurrentUserDTO: ...
 
 
 class PasswordService(Protocol):
