@@ -1,10 +1,10 @@
 from {{ package_name }}.infra.db.models.user import UserRecord
-from {{ package_name }}.features.users.models import User
-from {{ package_name }}.features.users.models import UserCredentials
+from {{ package_name }}.features.users.dto import UserCredentialsDTO
+from {{ package_name }}.features.users.dto import UserDTO
 
 
-def to_user_model(record: UserRecord) -> User:
-    return User(
+def to_user_dto(record: UserRecord) -> UserDTO:
+    return UserDTO(
         id=record.id,
         email=record.email,
         full_name=record.full_name,
@@ -13,8 +13,8 @@ def to_user_model(record: UserRecord) -> User:
     )
 
 
-def to_user_credentials(record: UserRecord) -> UserCredentials:
-    return UserCredentials(
-        user=to_user_model(record),
+def to_user_credentials_dto(record: UserRecord) -> UserCredentialsDTO:
+    return UserCredentialsDTO(
+        user=to_user_dto(record),
         password_hash=record.password_hash,
     )
