@@ -15,14 +15,14 @@ services:
 {%- endif %}
     environment:
 {%- if include_postgresql_integration %}
-      APP_DB_HOST: db
-      APP_DB_PORT: "5432"
-      APP_DB_NAME: app
-      APP_DB_USER: app
-      APP_DB_PASSWORD: app
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: app
+      DB_USER: app
+      DB_PASSWORD: app
 {%- endif %}
 {%- if include_redis_integration %}
-      APP_REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://redis:6379/0
 {%- endif %}
 {%- endif %}
 {%- if include_http_runtime %}
@@ -45,14 +45,14 @@ services:
 {%- endif %}
     environment:
 {%- if include_postgresql_integration %}
-      APP_DB_HOST: db
-      APP_DB_PORT: "5432"
-      APP_DB_NAME: app
-      APP_DB_USER: app
-      APP_DB_PASSWORD: app
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: app
+      DB_USER: app
+      DB_PASSWORD: app
 {%- endif %}
 {%- if include_redis_integration %}
-      APP_REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://redis:6379/0
 {%- endif %}
 {%- endif %}
 {%- endif %}
