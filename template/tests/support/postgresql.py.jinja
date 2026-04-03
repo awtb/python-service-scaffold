@@ -59,13 +59,13 @@ def _has_alembic_revisions(config: Config) -> bool:
 
 def _apply_database_env(settings: PostgresTestSettings) -> dict[str, str | None]:
     env_updates = {
-        "APP_DB_HOST": settings.host,
-        "APP_DB_PORT": str(settings.port),
-        "APP_DB_NAME": settings.name,
-        "APP_DB_USER": settings.user,
-        "APP_DB_PASSWORD": settings.password,
-        "APP_DB_DRIVER": settings.driver,
-        "APP_DB_DRIVER_SYNC": settings.driver_sync,
+        "DB_HOST": settings.host,
+        "DB_PORT": str(settings.port),
+        "DB_NAME": settings.name,
+        "DB_USER": settings.user,
+        "DB_PASSWORD": settings.password,
+        "DB_DRIVER": settings.driver,
+        "DB_DRIVER_SYNC": settings.driver_sync,
     }
     previous_env = {key: os.environ.get(key) for key in env_updates}
     os.environ.update(env_updates)
