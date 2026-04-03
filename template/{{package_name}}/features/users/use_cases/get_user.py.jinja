@@ -1,6 +1,6 @@
-from {{ package_name }}.features.users.contracts import GetUserCommand
-from {{ package_name }}.features.users.models import User
-from {{ package_name }}.features.users.ports import UsersRepositoryFactory
+from {{ package_name }}.features.users.dto import GetUserQuery
+from {{ package_name }}.features.users.dto import UserDTO
+from {{ package_name }}.features.users.protocols import UsersRepositoryFactory
 from {{ package_name }}.protocols import UnitOfWork
 
 
@@ -13,7 +13,7 @@ class GetUserUseCase:
         self._repository_factory = repository_factory
         self._uow = uow
 
-    async def execute(self, command: GetUserCommand) -> User | None:
+    async def execute(self, query: GetUserQuery) -> UserDTO | None:
         async with self._uow as uow:
             repository = self._repository_factory(uow)
-            return await repository.get_by_id(command.user_id)
+            return await repository.get_by_id(query.user_id)
