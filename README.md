@@ -69,8 +69,8 @@ Generated projects use a small, predictable layout:
 - `runtimes/` for entrypoints and transport-specific wiring
 - `features/` for business capabilities
 - `infra/` for technical adapters and integration code
+- `dto/` for shared data-transfer objects such as pagination
 - `protocols/` for interfaces between layers
-- `models/` for shared business models
 - `tests/` for grouped unit, integration, and end-to-end checks, when tests are enabled
 
 These packages are not separate block types. They are the fixed structure used to place whatever blocks were enabled.
@@ -80,8 +80,23 @@ The placement rule is:
 - runtime-specific code stays in `runtimes/`
 - business logic stays in `features/`
 - infrastructure code stays in `infra/`
-- shared contracts stay in `protocols/`
-- shared business models stay in `models/`
+- shared data shapes stay in `dto/`
+- shared interfaces stay in `protocols/`
+- feature-local use-case data should live in `dto.py`
+- feature-local interfaces should live in `protocols.py`
+
+Within a feature package, prefer:
+
+- `dto.py` for use-case input/output data that crosses feature boundaries
+- `protocols.py` for feature-local interfaces
+
+Keep the separation strict:
+
+- DTOs represent request/response shapes at the use-case boundary
+- protocols represent collaborator behavior that the use case depends on
+- use cases are the place where DTOs and protocols meet
+
+This scaffold does not generate a separate business `models` layer by default. Persistence models stay under `infra/db/models/`, transport schemas stay under runtime packages, and application data shapes live in DTOs.
 
 ## Quick Start
 
