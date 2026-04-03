@@ -1,0 +1,20 @@
+from fastapi import FastAPI
+
+from .common import handle_unexpected_exception
+{% if include_users_feature %}
+from .users import handle_authentication_error
+from {{ package_name }}.features.users.exceptions import AuthenticationError
+{% endif %}
+
+
+def setup_exception_handlers(app_instance: FastAPI) -> None:
+{% if include_users_feature %}
+    app_instance.add_exception_handler(
+        AuthenticationError,
+        handle_authentication_error,
+    )
+{% endif %}
+    app_instance.add_exception_handler(
+        Exception,
+        handle_unexpected_exception,
+    )
