@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
+from {{ package_name }}.exceptions import AppError
 from .common import handle_unexpected_exception
+from .common import handle_app_error
 {% if include_users_feature %}
 from .users import handle_authentication_error
 from {{ package_name }}.features.users.exceptions import AuthenticationError
@@ -14,6 +16,10 @@ def setup_exception_handlers(app_instance: FastAPI) -> None:
         handle_authentication_error,
     )
 {% endif %}
+    app_instance.add_exception_handler(
+        AppError,
+        handle_app_error,
+    )
     app_instance.add_exception_handler(
         Exception,
         handle_unexpected_exception,
