@@ -3,9 +3,9 @@ from fastapi import HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
 
+from {{ package_name }}.features.users.dto import UserDTO
 from {{ package_name }}.features.users.infra import JwtAccessTokenService
 from {{ package_name }}.features.users.infra import Pbkdf2PasswordService
-from {{ package_name }}.features.users.models import User
 from {{ package_name }}.features.users.infra import build_users_repository
 from {{ package_name }}.features.users.use_cases import AuthenticateUserUseCase
 from {{ package_name }}.features.users.use_cases import GetUserUseCase
@@ -73,7 +73,7 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme),
     uow: SqlAlchemyUnitOfWork = Depends(get_sqlalchemy_uow),
     settings: Settings = Depends(get_settings),
-) -> User:
+) -> UserDTO:
     access_token_service = _build_access_token_service(settings)
 
     try:
