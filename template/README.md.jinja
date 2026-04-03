@@ -150,6 +150,15 @@ Configure:
 - `APP_DB_DRIVER_SYNC`
 
 Runtime access uses SQLAlchemy `AsyncSession`.
+
+The generated `Makefile` also includes:
+
+- `make migrate`
+- `make downgrade REVISION=-1`
+- `make revision MESSAGE="add_users_table"`
+- `make revision-autogenerate MESSAGE="add_users_table"`
+- `make current`
+- `make history`
 {% endif -%}
 {% if include_tests -%}
 ### Test Suite
