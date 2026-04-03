@@ -5,9 +5,6 @@ from uuid import UUID
 
 import jwt
 
-from {{ package_name }}.features.users.contracts import AccessToken
-from {{ package_name }}.features.users.models import User
-
 
 class JwtAccessTokenService:
     def __init__(
@@ -21,21 +18,20 @@ class JwtAccessTokenService:
         self._algorithm = algorithm
         self._access_token_ttl = timedelta(minutes=access_token_expire_minutes)
 
-    def issue(self, user: User) -> AccessToken:
+    @property
+    def expires_in_seconds(self) -> int:
+        return int(self._access_token_ttl.total_seconds())
+
+    def issue_for_subject(self, subject: UUID) -> str:
         issued_at = datetime.now(UTC)
         expires_at = issued_at + self._access_token_ttl
         payload = {
-            "sub": str(user.id),
+            "sub": str(subject),
             "type": "access",
             "iat": issued_at,
             "exp": expires_at,
         }
-        token = jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
-
-        return AccessToken(
-            access_token=token,
-            expires_in=int(self._access_token_ttl.total_seconds()),
-        )
+        return jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
 
     def get_subject(self, token: str) -> UUID:
         try:
