@@ -1,2 +1,9 @@
-class AuthenticationError(ValueError):
+from {{ package_name }}.exceptions import AppError
+
+
+class AuthenticationError(AppError):
     """Raised when a user cannot be authenticated."""
+
+
+class InvalidAccessTokenError(AuthenticationError):
+    """Raised when an access token cannot authenticate a user."""
