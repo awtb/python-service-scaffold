@@ -2,37 +2,37 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from {{ package_name }}.features.users.ports import UsersRepository
-from {{ package_name }}.features.users.models import User
-from {{ package_name }}.features.users.models import UserCredentials
+from {{ package_name }}.dto import PageDTO
+from {{ package_name }}.features.users.dto import UserCredentialsDTO
+from {{ package_name }}.features.users.dto import UserDTO
+from {{ package_name }}.features.users.protocols import UsersRepository
 from {{ package_name }}.infra.db import BaseRepository
 from {{ package_name }}.infra.db.models.user import UserRecord
-from {{ package_name }}.models.page_result import PageResult
 from {{ package_name }}.protocols import UnitOfWork
 
-from .mappers import to_user_model
-from .mappers import to_user_credentials
+from .mappers import to_user_credentials_dto
+from .mappers import to_user_dto
 
 
 def build_users_repository(uow: UnitOfWork) -> UsersRepository:
     return SqlAlchemyUsersRepository.from_uow(uow)
 
 
-class SqlAlchemyUsersRepository(BaseRepository[User], UsersRepository):
-    async def get_credentials_by_email(self, email: str) -> UserCredentials | None:
+class SqlAlchemyUsersRepository(BaseRepository[UserDTO], UsersRepository):
+    async def get_credentials_by_email(self, email: str) -> UserCredentialsDTO | None:
         record = await self._session.scalar(
             select(UserRecord).where(UserRecord.email == email)
         )
         if record is None:
             return None
-        return to_user_credentials(record)
+        return to_user_credentials_dto(record)
 
-    async def get_by_id(self, user_id: UUID) -> User | None:
+    async def get_by_id(self, user_id: UUID) -> UserDTO | None:
         record = await self._session.get(UserRecord, user_id)
         if record is None:
             return None
-        return to_user_model(record)
+        return to_user_dto(record)
 
-    async def list(self, page: int, page_size: int) -> PageResult[User]:
+    async def list(self, page: int, page_size: int) -> PageDTO[UserDTO]:
         query = select(UserRecord).order_by(UserRecord.created_at.desc())
-        return await self._fetch(query, page, page_size, to_user_model)
+        return await self._fetch(query, page, page_size, to_user_dto)
