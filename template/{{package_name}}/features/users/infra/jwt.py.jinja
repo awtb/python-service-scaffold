@@ -6,6 +6,7 @@ from uuid import UUID
 import jwt
 
 from {{ package_name }}.features.users.dto import CurrentUserDTO
+from {{ package_name }}.features.users.exceptions import InvalidAccessTokenError
 
 
 class JwtAccessTokenService:
@@ -45,27 +46,27 @@ class JwtAccessTokenService:
                 algorithms=[self._algorithm],
             )
         except jwt.InvalidTokenError as exc:
-            raise ValueError("Invalid access token.") from exc
+            raise InvalidAccessTokenError("Invalid access token.") from exc
 
         if payload.get("type") != "access":
-            raise ValueError("Invalid access token.")
+            raise InvalidAccessTokenError("Invalid access token.")
 
         subject = payload.get("sub")
         if not isinstance(subject, str):
-            raise ValueError("Invalid access token.")
+            raise InvalidAccessTokenError("Invalid access token.")
 
         email = payload.get("email")
         if not isinstance(email, str):
-            raise ValueError("Invalid access token.")
+            raise InvalidAccessTokenError("Invalid access token.")
 
         full_name = payload.get("full_name")
         if not isinstance(full_name, str):
-            raise ValueError("Invalid access token.")
+            raise InvalidAccessTokenError("Invalid access token.")
 
         try:
             user_id = UUID(subject)
         except ValueError as exc:
-            raise ValueError("Invalid access token.") from exc
+            raise InvalidAccessTokenError("Invalid access token.") from exc
 
         return CurrentUserDTO(
             id=user_id,
