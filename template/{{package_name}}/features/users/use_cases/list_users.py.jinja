@@ -1,7 +1,7 @@
-from {{ package_name }}.features.users.contracts import ListUsersCommand
-from {{ package_name }}.features.users.models import User
-from {{ package_name }}.features.users.ports import UsersRepositoryFactory
-from {{ package_name }}.models.page_result import PageResult
+from {{ package_name }}.dto import PageDTO
+from {{ package_name }}.features.users.dto import ListUsersQuery
+from {{ package_name }}.features.users.dto import UserDTO
+from {{ package_name }}.features.users.protocols import UsersRepositoryFactory
 from {{ package_name }}.protocols import UnitOfWork
 
 
@@ -14,10 +14,10 @@ class ListUsersUseCase:
         self._repository_factory = repository_factory
         self._uow = uow
 
-    async def execute(self, command: ListUsersCommand) -> PageResult[User]:
+    async def execute(self, query: ListUsersQuery) -> PageDTO[UserDTO]:
         async with self._uow as uow:
             repository = self._repository_factory(uow)
             return await repository.list(
-                page=command.page,
-                page_size=command.page_size,
+                page=query.page,
+                page_size=query.page_size,
             )
