@@ -60,6 +60,9 @@ Keep the project small, explicit, and easy to simplify. Prefer using an existing
 
 - Prefer minimal, local changes over broad restructuring.
 - Prefer explicit wiring over magic.
+- Apply SOLID pragmatically, not dogmatically.
+- Keep code DRY, but do not extract abstractions too early.
+- Keep code KISS: choose the simplest solution that fits the current problem.
 - If code is runtime-specific, keep it inside that runtime package.
 - If code is business-specific, keep it inside a feature package even if only one runtime uses it today.
 - If a feature grows, split large `dto.py` or `protocols.py` modules into packages instead of creating new top-level layers.
