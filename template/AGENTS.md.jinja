@@ -4,74 +4,74 @@
 
 `{{ project_name }}` is a small Python service generated from `python-service-scaffold`.
 
-The codebase is organized around explicit building blocks:
+Treat this codebase as a set of explicit building blocks:
 
-- `runtimes` for ways to run the service
+- `runtimes` for delivery and execution
 - `features` for business capabilities
-- `infra` for technical adapters and shared infrastructure
-- `dto` for shared data-transfer objects
-- `protocols` for cross-layer interfaces
+- `infra` for technical adapters and shared wiring
+- `dto` for shared transport-neutral data shapes
+- `protocols` for interfaces across boundaries
 
-Keep the structure small and predictable. Prefer placing code into an existing package over creating new top-level directories.
+Keep the project small, explicit, and easy to simplify. Prefer using an existing package over introducing a new top-level directory.
+
+## Architecture rules
+
+- Keep shared bootstrap and common wiring separate from business logic.
+- Keep runtime-specific code inside its runtime package.
+- Keep business logic in `features/` when possible, not in runtime adapters.
+- Keep integrations optional and explicit.
+- Keep generated code understandable without scaffold internals.
+- Keep changes easy to delete, replace, or refactor later.
 
 ## Placement rules
 
-When adding or changing code, use these rules first:
-
-- Put runtime entrypoints, request/response wiring, and transport-specific adapters in `{{ package_name }}/runtimes/`.
-- Put business use cases, feature DTOs, and feature-local interfaces in `{{ package_name }}/features/`.
+- Put CLI startup wiring and commands in `{{ package_name }}/runtimes/cli/`.
+- Put HTTP routers, dependencies, schemas, middleware, lifecycle hooks, and exception handlers in `{{ package_name }}/runtimes/http/`.
+- Put Telegram bot routers, callbacks, keyboards, FSM states, and dispatcher wiring in `{{ package_name }}/runtimes/tg_bot/`.
+- Put FastStream app wiring, subscribers, publishers, and related runtime code in `{{ package_name }}/runtimes/stream/`.
+- Put business use cases in `{{ package_name }}/features/<feature_name>/use_cases/`.
+- Put feature-local DTOs and interfaces in `{{ package_name }}/features/<feature_name>/`, usually in `dto.py` and `protocols.py`.
+- Put feature-specific infrastructure that should stay close to the feature in `{{ package_name }}/features/<feature_name>/infra/`.
 - Put shared DTOs used by multiple features or runtimes in `{{ package_name }}/dto/`.
-- Put infrastructure adapters and technical wiring in `{{ package_name }}/infra/`.
-- Put interfaces between business code and infrastructure in `{{ package_name }}/protocols/`.
+- Put cross-layer interfaces in `{{ package_name }}/protocols/`.
+- Put shared infrastructure adapters in `{{ package_name }}/infra/`.
+- Put settings in `{{ package_name }}/settings.py`.
+- Put logging setup in `{{ package_name }}/infra/logging/`.
+- Put templating adapters and template loading in `{{ package_name }}/infra/templating/`.
+- Put Jinja templates in `{{ package_name }}/infra/templating/templates/`.
+- Put Redis integration code in `{{ package_name }}/infra/redis/`.
+- Put database session management and unit-of-work code in `{{ package_name }}/infra/db/`.
+- Put SQLAlchemy models in `{{ package_name }}/infra/db/models/`.
+- Put migrations in `alembic/`.
 - Put tests in `tests/unit/`, `tests/integration/`, or `tests/e2e/` based on scope.
-- Put shared test fixtures and test-only helpers in `tests/support/`.
-- Put project-wide operational notes in `README.md`, not inside package modules.
+- Put shared test fixtures and helpers in `tests/support/`.
+- Put project-wide operational notes in `README.md`.
 
-## Concretely, store things here
+## Boundary rules
 
-- New CLI commands or startup wiring: `{{ package_name }}/runtimes/cli/`
-- New HTTP routers, dependencies, schemas, lifecycle hooks, middleware, and `exc_handlers`: `{{ package_name }}/runtimes/http/`
-- New Telegram bot routers, callbacks, keyboards, FSM states, and dispatcher wiring: `{{ package_name }}/runtimes/tg_bot/`
-- New FastStream brokers, subscribers, publishers, and stream runtime wiring: `{{ package_name }}/runtimes/stream/`
-- Feature business flows: `{{ package_name }}/features/<feature_name>/use_cases/`
-- Feature-specific DTOs or interfaces: `{{ package_name }}/features/<feature_name>/`
-- Prefer `dto.py` for feature request/response data and `protocols.py` for feature-local interfaces.
-- Put reusable DTOs such as pagination containers in `{{ package_name }}/dto/`.
-- The scaffold does not generate a separate business `models.py` layer by default.
-- If a feature accumulates too many DTOs or interfaces, split them into `dto/` or `protocols/` packages instead of keeping one large module.
-- Feature-specific infrastructure that should stay close to the feature: `{{ package_name }}/features/<feature_name>/infra/`
-- Shared settings and config models: `{{ package_name }}/settings.py`
-- Shared logging setup: `{{ package_name }}/infra/logging/`
-- Shared templating adapters and template loader wiring: `{{ package_name }}/infra/templating/`
-- Jinja templates owned by the templating adapter: `{{ package_name }}/infra/templating/templates/`
-- Redis clients and Redis-specific integration helpers: `{{ package_name }}/infra/redis/`
-- Database session management and unit-of-work code: `{{ package_name }}/infra/db/`
-- SQLAlchemy database models: `{{ package_name }}/infra/db/models/`
-- Database migrations: `alembic/`
-
-## Boundaries
-
-- Do not put business logic into runtime modules when it can live in a feature use case.
-- Do not put HTTP-specific or CLI-specific code into `features/`.
-- Do not make `features/` depend directly on FastAPI, FastStream, Click, SQLAlchemy sessions, or other runtime details when a protocol is enough.
-- Do not return HTTP schemas or ORM records from protocols; use DTOs for feature data and keep runtime or persistence types at the edges.
-- Do not add hidden framework layers or generic base abstractions unless the codebase already needs them in multiple places.
+- Do not put business logic in runtime modules if it can live in a feature use case.
+- Do not put HTTP-specific, CLI-specific, bot-specific, or stream-specific code in `features/`.
+- Do not make `features/` depend directly on FastAPI, FastStream, Click, SQLAlchemy sessions, or similar runtime details when a protocol is enough.
+- Do not return HTTP schemas, ORM models, or other edge types from protocols; use DTOs across boundaries.
+- Do not add generic base abstractions or hidden framework layers unless they solve a repeated problem already present in the codebase.
 - Do not create a new top-level package for a concern that fits under `runtimes`, `features`, `infra`, `dto`, or `protocols`.
 
-## Examples
+## Change rules
 
-- Complex feature example: an `orders` feature can live under `{{ package_name }}/features/orders/` with `use_cases/create_order.py`, `use_cases/cancel_order.py`, `use_cases/get_order.py`, feature DTOs or protocols in the package root, and persistence adapters in `{{ package_name }}/features/orders/infra/`.
-- Workflow-heavy feature example: a `billing` or `subscriptions` feature should keep orchestration and business rules in `{{ package_name }}/features/<feature_name>/use_cases/`, expose only feature-level DTOs to runtimes, and keep payment-provider or storage adapters outside the runtime layer.
-- Shared DTO example: if `orders`, `billing`, and HTTP pagination all need the same page container or neutral data shape, place it in `{{ package_name }}/dto/` instead of redefining it inside each feature or runtime schema package.
-- Integration example: if `orders` needs persistence, keep database session handling in `{{ package_name }}/infra/db/`, keep ORM models in `{{ package_name }}/infra/db/models/`, and keep order-specific mapping or repository code near the feature or in explicit infrastructure adapters.
-
-## Working style
-
-- Keep generated code easy to delete, replace, or simplify.
+- Prefer minimal, local changes over broad restructuring.
 - Prefer explicit wiring over magic.
-- Keep optional integrations isolated so they can be removed without rewriting unrelated business code.
-- If a change is runtime-specific, keep it inside that runtime package.
-- If a change is business-specific, prefer a feature package even if only one runtime uses it today.
+- If code is runtime-specific, keep it inside that runtime package.
+- If code is business-specific, keep it inside a feature package even if only one runtime uses it today.
+- If a feature grows, split large `dto.py` or `protocols.py` modules into packages instead of creating new top-level layers.
+- The scaffold does not assume a separate business `models.py` layer by default.
+
+## Commit rules
+
+- Use Conventional Commits only.
+- Keep one commit per file.
+- Do not bundle edits to multiple files into one commit.
+- If a task requires coordinated changes across multiple files, split them into separate commits where possible.
+- If separate commits would make the history misleading or unsafe, stop and ask before deviating from this rule.
 
 ## Common commands
 
