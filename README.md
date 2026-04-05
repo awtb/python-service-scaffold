@@ -1,5 +1,9 @@
 # 🧱 Python Service Scaffold
 
+[![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-orange.json)](https://github.com/copier-org/copier)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Minimal Python service generator. Only selected blocks appear in the output — no hidden architecture, no magic.
 
 ## Agentic Development
