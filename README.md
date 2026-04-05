@@ -109,6 +109,20 @@ copier copy \
 Enabled by default: CLI runtime, HTTP runtime, tests.  
 Everything else is opt-in.
 
+## Versioning
+
+The scaffold itself is versioned with SemVer.
+
+- The current scaffold version lives in `VERSION`
+- Release tags should use the `vX.Y.Z` format
+- `make version` prints the current scaffold version
+
+When you want to generate a project from a specific scaffold release, pin the tag explicitly:
+
+```bash
+copier copy --vcs-ref v0.1.0 gh:awtb/python-service-scaffold my-service
+```
+
 ## Tests
 
 Scoped into `e2e/`, `integration/`, `unit/`, `support/`. PostgreSQL tests use a disposable testcontainer. DB setup prefers `alembic upgrade head` when real revisions exist, otherwise falls back to metadata-based schema creation.
