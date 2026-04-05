@@ -1,5 +1,6 @@
-.PHONY: render test-rendered compose-config-rendered check-template clean-generated
+.PHONY: version render test-rendered compose-config-rendered check-template clean-generated
 
+VERSION_FILE ?= VERSION
 PROJECT_NAME ?= Health Service
 PROJECT_SLUG ?= health-service
 PACKAGE_NAME ?= health_service
@@ -15,6 +16,9 @@ INCLUDE_TEMPLATING_COMPONENT ?= false
 INCLUDE_PRE_COMMIT ?= false
 INCLUDE_TESTS ?= true
 RENDER_DIR ?= examples/generated/$(PROJECT_SLUG)
+
+version:
+	@cat $(VERSION_FILE)
 
 render:
 	rm -rf $(RENDER_DIR)
