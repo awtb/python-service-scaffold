@@ -28,7 +28,7 @@ Example: HTTP + PostgreSQL + users feature.
 my_service/
 ├── AGENTS.md                        # architecture context for AI agents
 ├── Dockerfile
-├── Makefile
+├── justfile
 ├── compose.yaml
 ├── pyproject.toml
 ├── alembic/                         # present when PostgreSQL is enabled
@@ -119,7 +119,7 @@ The scaffold itself is versioned with SemVer.
 
 - The current scaffold version lives in `VERSION`
 - Release tags should use the `vX.Y.Z` format
-- `make version` prints the current scaffold version
+- `just version` prints the current scaffold version
 
 When you want to generate a project from a specific scaffold release, pin the tag explicitly:
 
@@ -131,4 +131,4 @@ copier copy --vcs-ref v0.1.0 gh:awtb/python-service-scaffold my-service
 
 Scoped into `e2e/`, `integration/`, `unit/`, `support/`. PostgreSQL tests use a disposable testcontainer. DB setup prefers `alembic upgrade head` when real revisions exist, otherwise falls back to metadata-based schema creation.
 
-For scaffold development: `make check-template`, `make test-rendered`.
+For scaffold development: `just check-template`, `just test-rendered`. Both the scaffold and generated projects use [`just`](https://github.com/casey/just) as their task runner.
