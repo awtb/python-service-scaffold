@@ -78,10 +78,12 @@ Keep the project small, explicit, and easy to simplify. Prefer using an existing
 
 ## Common commands
 
-- Run locally: `make run`
+Tasks are run with [`just`](https://github.com/casey/just).
+
+- Run locally: `just run`
 {% if include_tests %}
-- Run tests: `make test`
+- Run tests: `just test`
 {% endif %}
 {% if include_pre_commit -%}
-- Run pre-commit: `make pre-commit`
+- Run pre-commit: `just pre-commit`
 {% endif -%}

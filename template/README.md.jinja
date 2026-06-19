@@ -30,7 +30,7 @@
 Run tests:
 
 ```bash
-make test
+just test
 ```
 {% endif -%}
 {% if include_http_runtime or include_redis_integration -%}
@@ -151,14 +151,14 @@ Configure:
 
 Runtime access uses SQLAlchemy `AsyncSession`.
 
-The generated `Makefile` also includes:
+The generated `justfile` also includes:
 
-- `make migrate`
-- `make downgrade REVISION=-1`
-- `make revision MESSAGE="add_users_table"`
-- `make revision-autogenerate MESSAGE="add_users_table"`
-- `make current`
-- `make history`
+- `just migrate`
+- `just downgrade -1`
+- `just revision "add_users_table"`
+- `just revision-autogenerate "add_users_table"`
+- `just current`
+- `just history`
 {% endif -%}
 {% if include_tests -%}
 ### Test Suite
@@ -218,13 +218,13 @@ Add a runtime under `{{ package_name }}/runtimes/` and register it in the CLI wh
 Install hooks:
 
 ```bash
-make hooks
+just hooks
 ```
 
 Run all hooks:
 
 ```bash
-make pre-commit
+just pre-commit
 ```
 {% endif -%}
 {%- endset -%}
@@ -258,16 +258,18 @@ Examples:
 
 ## Quick Start
 
+Tasks are run with [`just`](https://github.com/casey/just) (`brew install just`, or see the install docs).
+
 Install dependencies:
 
 ```bash
-make install
+just install
 ```
 
 Run the project:
 
 ```bash
-make run
+just run
 ```
 {% if quick_start_extras | trim %}
 
